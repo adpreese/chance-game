@@ -66,13 +66,14 @@ class HorseRaceScene extends BaseGameScene {
       horse.speedJitter = isWinner ? 0.12 : 0.16;
       horse.targetShiftChance = 0.08;
 
-      this.add
-        .text(startX - 30, laneY, name, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '14px',
-          color: '#e2e8f0',
-        })
-        .setOrigin(1, 0.5);
+      const laneLabel = this.createItemLabel(startX - 30, laneY, name, {
+        fontSize: '14px',
+        color: '#f8fafc',
+        stroke: '#0f172a',
+        strokeThickness: 3,
+        wordWrap: { width: 120 },
+      });
+      laneLabel.setOrigin(1, 0.5);
 
       return horse;
     });
