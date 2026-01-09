@@ -44,7 +44,8 @@ class WheelScene extends BaseGameScene {
 
     this.add.triangle(this.scale.width / 2, this.scale.height / 2 - 180, 0, 0, 30, 0, 15, 30, 0xffd166, 1);
 
-    const labelRadius = 100;
+    const wheelRadius = wheel.displayWidth / 2;
+    const labelRadius = wheelRadius * 0.6;
     this.wheelLabels = items.map((item, index) => {
       const angle = (Math.PI * 2 * index) / items.length - Math.PI / 2;
       const label = this.createItemLabel(wheel.x, wheel.y, item, {
