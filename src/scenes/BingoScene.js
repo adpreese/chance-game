@@ -21,10 +21,17 @@ class BingoScene extends BaseGameScene {
     const segmentCount = 28;
     const wallThickness = 12;
     const wallLength = (2 * Math.PI * radius) / segmentCount + 4;
+    const gapWidth = 150;
+    const gapAngle = gapWidth / radius;
+    const gapCenter = Math.PI / 2;
     const containerSegments = [];
 
     for (let i = 0; i < segmentCount; i += 1) {
       const angle = (Math.PI * 2 * i) / segmentCount;
+      const relativeAngle = Phaser.Math.Angle.Wrap(angle - gapCenter);
+      if (Math.abs(relativeAngle) < gapAngle / 2) {
+        continue;
+      }
       const x = centerX + Math.cos(angle) * radius;
       const y = centerY + Math.sin(angle) * radius;
       const segment = Bodies.rectangle(x, y, wallLength, wallThickness, {
