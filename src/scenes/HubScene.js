@@ -83,9 +83,18 @@ class HubScene extends Phaser.Scene {
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x0b1020, 1);
     this.add
       .text(this.scale.width / 2, 40, 'Chance Arcade', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '32px',
-        color: '#f5f5f5',
+        fontFamily: '"Bangers", "Impact", "Trebuchet MS", sans-serif',
+        fontSize: '36px',
+        color: '#fff1c2',
+        stroke: '#3b0d0d',
+        strokeThickness: 4,
+        shadow: {
+          offsetX: 0,
+          offsetY: 3,
+          color: 'rgba(255, 136, 0, 0.6)',
+          blur: 8,
+          fill: true,
+        },
       })
       .setOrigin(0.5, 0.5);
 
