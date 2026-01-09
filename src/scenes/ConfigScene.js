@@ -1,20 +1,25 @@
 import Phaser from 'phaser';
-import { getState, setItemsFromText, setNextGame, setRemoveOnSelect } from '../utils/store.js';
+import { getState, setItemsFromText, setNextGame, setRemoveOnSelect, setShader } from '../utils/store.js';
 import { createTextButton, createPanel } from '../utils/ui.js';
+import { applySelectedShader } from '../utils/shader.js';
 
 class ConfigScene extends Phaser.Scene {
   constructor() {
     super('ConfigScene');
     this.currentRemoveOnSelect = false;
     this.currentNextGame = 'random';
+    this.currentShader = 'none';
   }
 
   create() {
-    const { items, removeOnSelect, nextGame } = getState();
+    const { items, removeOnSelect, nextGame, shader } = getState();
 
     // Initialize current values
     this.currentRemoveOnSelect = removeOnSelect;
     this.currentNextGame = nextGame;
+    this.currentShader = shader;
+
+    applySelectedShader(this);
 
     // Background
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x070b18, 1);
@@ -133,12 +138,46 @@ class ConfigScene extends Phaser.Scene {
 
     yPos += 50;
 
+    // Shader preference (cycle button)
+    this.add
+      .text(this.scale.width / 2, yPos, 'Visual shader', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        color: '#d1d5db',
+      })
+      .setOrigin(0.5, 0.5);
+
+    yPos += 30;
+
+    const shaderOptions = [
+      { label: 'None', value: 'none' },
+      { label: 'Neon', value: 'neon' },
+    ];
+    let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
+    if (shaderIndex === -1) shaderIndex = 0;
+
+    const shaderButton = createTextButton(
+      this,
+      this.scale.width / 2,
+      yPos,
+      shaderOptions[shaderIndex].label,
+      () => {
+        shaderIndex = (shaderIndex + 1) % shaderOptions.length;
+        this.currentShader = shaderOptions[shaderIndex].value;
+        shaderButton.setText(shaderOptions[shaderIndex].label);
+      }
+    );
+
+    yPos += 50;
+
     // Save and Hub buttons
     const saveConfig = () => {
       const itemsInput = textareaPanel.getChildByID('itemsInput');
       setItemsFromText(itemsInput?.value ?? '');
       setRemoveOnSelect(this.currentRemoveOnSelect);
       setNextGame(this.currentNextGame);
+      setShader(this.currentShader);
+      applySelectedShader(this);
     };
 
     createTextButton(this, this.scale.width / 2 - 100, yPos, 'Save', () => {
