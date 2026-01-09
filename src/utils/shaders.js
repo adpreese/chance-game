@@ -43,6 +43,40 @@ void main() {
 }
 `;
 
+const fragShaderPlinkoNeon = `
+#define SHADER_NAME PLINKO_NEON_SHADER
+precision mediump float;
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+varying vec2 outTexCoord;
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 color = texture2D(uMainSampler, uv);
+
+  float scan = sin((uv.y * uResolution.y * 0.22) + uTime * 2.0) * 0.05;
+  float gridX = sin((uv.x + uTime * 0.05) * uResolution.x * 0.02);
+  float gridY = sin((uv.y + uTime * 0.05) * uResolution.y * 0.02);
+  float grid = (gridX + gridY) * 0.03;
+
+  vec3 neon = vec3(
+    color.r * 1.35 + 0.3,
+    color.g * 0.1 + 0.02,
+    color.b * 1.6 + 0.45
+  );
+
+  vec2 centered = uv - 0.5;
+  float vignette = smoothstep(0.85, 0.25, length(centered));
+
+  neon += vec3(scan + grid);
+  neon = mix(neon, neon + vec3(0.25, 0.0, 0.45), 0.35);
+  neon *= vignette + 0.25;
+
+  gl_FragColor = vec4(neon, color.a);
+}
+`;
+
 const fragShaderMidcentury = `
 #define SHADER_NAME MIDCENTURY_SHADER
 precision mediump float;
@@ -116,6 +150,23 @@ class SolarpunkPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   }
 }
 
+class PlinkoNeonPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      name: 'PlinkoNeonPipeline',
+      fragShader: fragShaderPlinkoNeon,
+    });
+  }
+
+  onDraw(source) {
+    this.set1f('uTime', this.game.loop.time / 1000);
+    this.set2f('uResolution', source.width, source.height);
+    this.drawFrame(source, this.fullFrame1);
+    this.copyToGame(this.fullFrame1);
+  }
+}
+
 class MidcenturyPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -159,6 +210,7 @@ const registerPipelines = (game) => {
   const postPipelines = [
     ['NeonPipeline', NeonPipeline],
     ['SolarpunkPipeline', SolarpunkPipeline],
+    ['PlinkoNeonPipeline', PlinkoNeonPipeline],
     ['MidcenturyPipeline', MidcenturyPipeline],
     ['Retro16Pipeline', Retro16Pipeline],
   ];
@@ -174,6 +226,7 @@ const pipelineMap = {
   none: null,
   neon: 'NeonPipeline',
   solarpunk: 'SolarpunkPipeline',
+  plinko80s: 'PlinkoNeonPipeline',
   midcentury: 'MidcenturyPipeline',
   retro16: 'Retro16Pipeline',
 };
