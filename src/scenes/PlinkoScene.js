@@ -135,8 +135,10 @@ class PlinkoScene extends BaseGameScene {
     const puckVisual = this.add.circle(puck.position.x, puck.position.y, 15, 0xffd166, 1);
 
     const slotButtonCount = pegCols + 1;
-    const slotButtonSpacing = spacingX;
-    const slotButtonStartX = this.scale.width / 2 - ((slotButtonCount - 1) * slotButtonSpacing) / 2;
+    const gridLeftX = startX;
+    const gridRightX = startX + ((pegCols - 1) * spacingX) + (spacingX / 2);
+    const slotButtonSpacing = (gridRightX - gridLeftX) / (slotButtonCount - 1);
+    const slotButtonStartX = gridLeftX;
     const slotButtonY = startY - 50;
 
     const dropPuckAt = (x) => {
