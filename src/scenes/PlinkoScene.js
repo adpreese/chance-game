@@ -29,14 +29,14 @@ class PlinkoScene extends BaseGameScene {
         const offset = row % 2 === 0 ? 0 : spacingX / 2;
         const pegX = startX + col * spacingX + offset;
         const pegY = startY + row * spacingY;
-        this.matter.add.circle(pegX, pegY, 12, {
+        this.matter.add.circle(pegX, pegY, 8, {
           isStatic: true,
           restitution: 0.9,
-          friction: 0.01,
+          friction: 0.1,
           label: 'peg',
           render: { fillStyle: '#7ef9ff' },
         });
-        this.add.circle(pegX, pegY, 12, 0x7ef9ff, 0.7).setStrokeStyle(1, 0xffffff, 0.6);
+        this.add.circle(pegX, pegY, 8, 0x7ef9ff, 0.7).setStrokeStyle(1, 0xffffff, 0.6);
       }
     }
 
@@ -69,15 +69,15 @@ class PlinkoScene extends BaseGameScene {
     }
 
     const dropStartY = 80;
-    const puck = this.matter.add.circle(this.scale.width / 2, dropStartY, 15, {
+    const puck = this.matter.add.circle(this.scale.width / 2, dropStartY, 19, {
       restitution: 0.9,
-      frictionAir: 0.008,
+      frictionAir: 0.01,
       friction: 0.01,
       density: 0.002,
       label: 'plinko-puck',
     });
 
-    const puckVisual = this.add.circle(puck.position.x, puck.position.y, 15, 0xffd166, 1);
+    const puckVisual = this.add.circle(puck.position.x, puck.position.y, 19, 0xffd166, 1);
 
     const slotButtonCount = pegCols + 1;
     const gridLeftX = startX;
@@ -92,10 +92,6 @@ class PlinkoScene extends BaseGameScene {
       }
       this.matter.body.setStatic(puck, false);
       this.matter.body.setPosition(puck, { x: x + ((Math.random() - 0.5) * 100), y: dropStartY + ((Math.random() - 0.5) / 20) });
-      const randomHorizontalVelocity = (Math.random() - 0.5) * 1.5;
-      const randomAngularVelocity = (Math.random() - 0.5) * 0.1;
-      //this.matter.body.setVelocity(puck, { x: randomHorizontalVelocity, y: 0 });
-      //this.matter.body.setAngularVelocity(puck, randomAngularVelocity);
     };
 
     for (let i = 0; i < slotButtonCount; i += 1) {
@@ -141,7 +137,7 @@ class PlinkoScene extends BaseGameScene {
           // If puck is moving slowly, give it a horizontal nudge to prevent balancing
           if (puck.speed < 2) {
             const nudge = (Math.random() - 0.5) * 2.5;
-            this.matter.body.applyForce(puck, puck.position, { x: nudge * 0.0001, y: nudge * 0.0002 });
+            this.matter.body.applyForce(puck, puck.position, { x: nudge * 0.01, y: nudge * 0.02 });
           }
         }
 
