@@ -40,25 +40,23 @@ class WheelScene extends BaseGameScene {
     this.matter.add.gameObject(wheel, { shape: { type: 'circle', radius: 160 } });
     wheel.setOrigin(0.5);
     wheel.setScale(1);
+    this.wheel = wheel;
 
     this.add.triangle(this.scale.width / 2, this.scale.height / 2 - 180, 0, 0, 30, 0, 15, 30, 0xffd166, 1);
 
-    items.forEach((item, index) => {
+    const wheelRadius = wheel.displayWidth / 2;
+    const labelRadius = wheelRadius * 0.6;
+    this.wheelLabels = items.map((item, index) => {
       const angle = (Math.PI * 2 * index) / items.length - Math.PI / 2;
-      const radius = 100;
-      const label = this.createItemLabel(
-        wheel.x + Math.cos(angle) * radius,
-        wheel.y + Math.sin(angle) * radius,
-        item,
-        {
-          fontSize: '12px',
-          color: '#f8fafc',
-          stroke: '#0f172a',
-          strokeThickness: 3,
-          wordWrap: { width: 80 },
-        },
-      );
-      label.setRotation(angle + Math.PI / 2);
+      const label = this.createItemLabel(wheel.x, wheel.y, item, {
+        fontSize: '12px',
+        color: '#f8fafc',
+        stroke: '#0f172a',
+        strokeThickness: 3,
+        wordWrap: { width: 80 },
+      });
+      label.setDepth(2);
+      return { label, angle, radius: labelRadius };
     });
 
     wheel.setAngularVelocity(6);
@@ -82,6 +80,22 @@ class WheelScene extends BaseGameScene {
       consumeItem(choice);
       this.setResult(choice);
       this.updateItemPoolText();
+    });
+  }
+
+  update() {
+    if (!this.wheel || !this.wheelLabels) {
+      return;
+    }
+
+    const wheelRotation = this.wheel.rotation;
+    const wheelX = this.wheel.x;
+    const wheelY = this.wheel.y;
+
+    this.wheelLabels.forEach(({ label, angle, radius }) => {
+      const rotatedAngle = angle + wheelRotation;
+      label.setPosition(wheelX + Math.cos(rotatedAngle) * radius, wheelY + Math.sin(rotatedAngle) * radius);
+      label.setRotation(rotatedAngle + Math.PI / 2);
     });
   }
 }
