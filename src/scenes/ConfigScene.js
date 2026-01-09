@@ -152,6 +152,8 @@ class ConfigScene extends Phaser.Scene {
     const shaderOptions = [
       { label: 'None', value: 'none' },
       { label: 'Neon', value: 'neon' },
+      { label: 'Solarpunk', value: 'solarpunk' },
+      { label: 'Tree of Life', value: 'tree-of-life' },
     ];
     let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
     if (shaderIndex === -1) shaderIndex = 0;
