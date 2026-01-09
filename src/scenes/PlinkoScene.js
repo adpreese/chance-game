@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
+import { applyShaderToScene } from '../utils/shaders.js';
 import { consumeItem, getItems } from '../utils/store.js';
 
 class PlinkoScene extends BaseGameScene {
@@ -9,6 +10,7 @@ class PlinkoScene extends BaseGameScene {
 
   create() {
     this.createBaseLayout('Plinko Drop');
+    applyShaderToScene(this, 'plinko80s');
 
     this.matter.world.setGravity(0, 1.2);
 
