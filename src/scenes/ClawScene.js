@@ -18,10 +18,19 @@ class ClawScene extends BaseGameScene {
       label: 'claw-platform',
     });
 
-    const items = Phaser.Utils.Array.Shuffle(getItems()).slice(0, 6);
+    const items = Phaser.Utils.Array.Shuffle(getItems());
+    const availableWidth = platform.width - 40;
+    const maxColumns = Math.max(1, Math.floor(availableWidth / 60));
+    const columns = Math.min(items.length, maxColumns);
+    const spacingX = availableWidth / columns;
+    const baseY = platform.getCenter().y - 26;
+    const rowGap = 48;
+    const startX = platform.getCenter().x - availableWidth / 2 + spacingX / 2;
     const prizes = items.map((item, index) => {
-      const x = this.scale.width / 2 - 180 + index * 60;
-      const y = platform.getCenter().y - 26;
+      const row = Math.floor(index / columns);
+      const col = index % columns;
+      const x = startX + col * spacingX;
+      const y = baseY - row * rowGap;
       const body = this.matter.add.circle(x, y, 18, {
         restitution: 0.6,
         friction: 0.4,

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { getState } from '../utils/store.js';
 import { createTextButton } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
+import { registerSfx } from '../utils/audio.js';
 
 const gameCards = [
   { key: 'PlinkoScene', label: 'Plinko' },
@@ -77,6 +78,7 @@ class HubScene extends Phaser.Scene {
   }
 
   create() {
+    registerSfx(this);
     applySelectedShader(this);
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x0b1020, 1);
     this.add

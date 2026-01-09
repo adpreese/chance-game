@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import BootScene from './scenes/BootScene.js';
 import ConfigScene from './scenes/ConfigScene.js';
 import HubScene from './scenes/HubScene.js';
 import PlinkoScene from './scenes/PlinkoScene.js';
@@ -24,7 +25,7 @@ const config = {
       gravity: { y: 1.1 },
     },
   },
-  scene: [ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene, HorseRaceScene],
+  scene: [BootScene, ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene, HorseRaceScene],
 };
 
 const game = new Phaser.Game(config);
