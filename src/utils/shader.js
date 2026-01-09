@@ -404,6 +404,54 @@ void main() {
 }
 `;
 
+const rainFragmentShader = `
+#define SHADER_NAME RAIN_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float rainLayer(vec2 uv, float scale, float speed, float density) {
+  vec2 grid = uv * scale;
+  vec2 cell = floor(grid);
+  vec2 local = fract(grid);
+  float seed = hash(cell);
+
+  float dropPos = fract(seed + uTime * speed);
+  float streak = smoothstep(0.0, density, local.x) * smoothstep(density, 0.0, local.x);
+  float trail = smoothstep(0.0, 0.25, local.y - dropPos + 0.05);
+  trail *= smoothstep(0.8, 0.3, local.y - dropPos);
+
+  return streak * trail;
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  vec2 normalized = vec2(uv.x * uResolution.x / uResolution.y, uv.y);
+  float rainA = rainLayer(normalized + vec2(0.0, uTime * 0.15), 25.0, 0.9, 0.28);
+  float rainB = rainLayer(normalized + vec2(0.2, uTime * 0.3), 38.0, 1.3, 0.22);
+  float rainC = rainLayer(normalized + vec2(-0.15, uTime * 0.45), 52.0, 1.8, 0.18);
+
+  float rainMask = clamp(rainA + rainB + rainC, 0.0, 1.0);
+  vec3 rainTint = mix(vec3(0.6, 0.75, 0.95), vec3(0.8, 0.9, 1.0), rainMask);
+
+  vec3 darkened = baseColor.rgb * 0.92;
+  vec3 result = mix(darkened, rainTint, rainMask * 0.55);
+
+  gl_FragColor = vec4(result, baseColor.a);
+}
+`;
+
 class NeonPurplePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -574,6 +622,23 @@ class FilmNoirPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   }
 }
 
+class RainPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: rainFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
 const ensureShaderPipelines = (game) => {
   if (game.renderer.type !== Phaser.WEBGL) {
     return;
@@ -590,6 +655,7 @@ const ensureShaderPipelines = (game) => {
     { key: 'Impressionist', pipeline: ImpressionistPostFX },
     { key: 'Sketch', pipeline: SketchPostFX },
     { key: 'FilmNoir', pipeline: FilmNoirPostFX },
+    { key: 'Rain', pipeline: RainPostFX },
   ];
 
   pipelines.forEach(({ key, pipeline }) => {
@@ -681,6 +747,9 @@ const applySelectedShader = (scene) => {
   } else if (shader === 'film-noir') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('FilmNoir');
+  } else if (shader === 'rain') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('Rain');
   } else {
     camera.resetPostPipeline();
   }

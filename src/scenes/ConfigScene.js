@@ -160,6 +160,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Tree of Life', value: 'tree-of-life' },
       { label: 'Comic Halftone', value: 'halftone' },
       { label: 'Film Noir', value: 'film-noir' },
+      { label: 'Rain', value: 'rain' },
     ];
     let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
     if (shaderIndex === -1) shaderIndex = 0;
