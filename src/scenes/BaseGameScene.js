@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { createTextButton } from '../utils/ui.js';
 import { getNextItem, getState } from '../utils/store.js';
 import { applySelectedShader } from '../utils/shader.js';
+import { registerSfx } from '../utils/audio.js';
 
 class BaseGameScene extends Phaser.Scene {
   constructor(key) {
@@ -10,6 +11,7 @@ class BaseGameScene extends Phaser.Scene {
   }
 
   createBaseLayout(title) {
+    registerSfx(this);
     applySelectedShader(this);
     this.matter.world.setBounds(40, 40, this.scale.width - 80, this.scale.height - 80, 64, true, true, false, true);
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x0b1020, 1);
