@@ -75,7 +75,7 @@ class DiceScene extends BaseGameScene {
 
     this.tweens.add({
       targets: spinState,
-      rotation: spinState.rotation + totalSpins + landingRotation,
+      rotation: totalSpins + landingRotation,
       duration: 2600,
       ease: 'Cubic.easeOut',
       onUpdate: () => updateFaces(spinState.rotation),
