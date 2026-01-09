@@ -29,9 +29,11 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
-registerPipelines(game);
 
-const { shader } = getState();
-game.registry.set('shader', shader);
+// Wait for renderer to be ready before registering pipelines
+game.events.once('ready', () => {
+  registerPipelines(game);
 
-game.scene.start('ConfigScene');
+  const { shader } = getState();
+  game.registry.set('shader', shader);
+});

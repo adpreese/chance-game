@@ -1,16 +1,28 @@
 import Phaser from 'phaser';
 import { applyShaderToScene, shaderOptions, updateShaderUniforms } from '../utils/shaders.js';
 import { getState, setItemsFromText, setNextGame, setRemoveOnSelect, setShader } from '../utils/store.js';
+import { createTextButton, createPanel } from '../utils/ui.js';
 
 class ConfigScene extends Phaser.Scene {
   constructor() {
     super('ConfigScene');
+    this.currentRemoveOnSelect = false;
+    this.currentNextGame = 'random';
+    this.currentShader = 'neon';
   }
 
   create() {
     const { items, removeOnSelect, nextGame, shader } = getState();
 
+    // Initialize current values
+    this.currentRemoveOnSelect = removeOnSelect;
+    this.currentNextGame = nextGame;
+    this.currentShader = shader;
+
+    // Background
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x070b18, 1);
+
+    // Title
     this.add
       .text(this.scale.width / 2, 60, 'Chance Arcade Config', {
         fontFamily: 'Inter, system-ui, sans-serif',
@@ -19,72 +31,157 @@ class ConfigScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0.5);
 
-    const panel = this.add.dom(this.scale.width / 2, this.scale.height / 2);
-    panel.createFromHTML(`
-      <div class="ui-panel" style="width: 420px;">
-        <label>Item list (comma or new-line separated)</label>
-        <textarea rows="6" id="itemsInput">${items.join('\n')}</textarea>
-        <label>Remove items after selection?</label>
-        <select id="removeSelect">
-          <option value="false">Keep items</option>
-          <option value="true">Remove items</option>
-        </select>
-        <label>Next game preference</label>
-        <select id="nextGameSelect">
-          <option value="random">Random</option>
-          <option value="PlinkoScene">Plinko</option>
-          <option value="WheelScene">Spin Wheel</option>
-          <option value="DiceScene">Dice Roll</option>
-          <option value="FishingScene">Fishing</option>
-          <option value="ClawScene">Claw</option>
-          <option value="BingoScene">Bingo Ball</option>
-        </select>
-        <label>Shader aesthetic</label>
-        <select id="shaderSelect">
-          ${shaderOptions
-            .map((option) => `<option value="${option.value}">${option.label}</option>`)
-            .join('')}
-        </select>
-        <div class="row" style="margin-top: 12px;">
-          <button id="saveBtn">Save</button>
-          <button id="hubBtn">Go to Hub</button>
-        </div>
-      </div>
+    // Panel background
+    const panelBg = createPanel(this, this.scale.width / 2, this.scale.height / 2 + 20, 480, 480);
+    panelBg.setStrokeStyle(2, 0xffffff, 0.1);
+
+    let yPos = 140;
+
+    // Item list textarea (using DOM for text input)
+    this.add
+      .text(this.scale.width / 2, yPos, 'Item list (comma or new-line separated)', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        color: '#d1d5db',
+      })
+      .setOrigin(0.5, 0.5);
+
+    yPos += 30;
+
+    const textareaPanel = this.add.dom(this.scale.width / 2, yPos + 55);
+    textareaPanel.createFromHTML(`
+      <textarea rows="6" id="itemsInput" style="
+        width: 400px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+        font-family: 'Inter', system-ui, sans-serif;
+        resize: vertical;
+      ">${items.join('\n')}</textarea>
     `);
+    textareaPanel.setDepth(100);
 
-    panel.setDepth(10);
+    yPos += 140;
 
-    const itemsInput = panel.getChildByID('itemsInput');
-    const removeSelect = panel.getChildByID('removeSelect');
-    const nextGameSelect = panel.getChildByID('nextGameSelect');
-    const shaderSelect = panel.getChildByID('shaderSelect');
-    const saveBtn = panel.getChildByID('saveBtn');
-    const hubBtn = panel.getChildByID('hubBtn');
+    // Remove items after selection (cycle button)
+    this.add
+      .text(this.scale.width / 2, yPos, 'Remove items after selection?', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        color: '#d1d5db',
+      })
+      .setOrigin(0.5, 0.5);
 
-    if (removeSelect) {
-      removeSelect.value = String(removeOnSelect);
-    }
-    if (nextGameSelect) {
-      nextGameSelect.value = nextGame;
-    }
-    if (shaderSelect) {
-      shaderSelect.value = shader;
-    }
+    yPos += 30;
 
+    const removeOptions = [
+      { label: 'Keep items', value: false },
+      { label: 'Remove items', value: true }
+    ];
+    let removeIndex = removeOptions.findIndex(opt => opt.value === removeOnSelect);
+    if (removeIndex === -1) removeIndex = 0;
+
+    const removeButton = createTextButton(
+      this,
+      this.scale.width / 2,
+      yPos,
+      removeOptions[removeIndex].label,
+      () => {
+        removeIndex = (removeIndex + 1) % removeOptions.length;
+        this.currentRemoveOnSelect = removeOptions[removeIndex].value;
+        removeButton.setText(removeOptions[removeIndex].label);
+      }
+    );
+
+    yPos += 40;
+
+    // Next game preference (cycle button)
+    this.add
+      .text(this.scale.width / 2, yPos, 'Next game preference', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        color: '#d1d5db',
+      })
+      .setOrigin(0.5, 0.5);
+
+    yPos += 30;
+
+    const gameOptions = [
+      { label: 'Random', value: 'random' },
+      { label: 'Plinko', value: 'PlinkoScene' },
+      { label: 'Spin Wheel', value: 'WheelScene' },
+      { label: 'Dice Roll', value: 'DiceScene' },
+      { label: 'Fishing', value: 'FishingScene' },
+      { label: 'Claw', value: 'ClawScene' },
+      { label: 'Bingo Ball', value: 'BingoScene' }
+    ];
+    let gameIndex = gameOptions.findIndex(opt => opt.value === nextGame);
+    if (gameIndex === -1) gameIndex = 0;
+
+    const gameButton = createTextButton(
+      this,
+      this.scale.width / 2,
+      yPos,
+      gameOptions[gameIndex].label,
+      () => {
+        gameIndex = (gameIndex + 1) % gameOptions.length;
+        this.currentNextGame = gameOptions[gameIndex].value;
+        gameButton.setText(gameOptions[gameIndex].label);
+      }
+    );
+
+    yPos += 40;
+
+    // Shader aesthetic (cycle button)
+    this.add
+      .text(this.scale.width / 2, yPos, 'Shader aesthetic', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '14px',
+        color: '#d1d5db',
+      })
+      .setOrigin(0.5, 0.5);
+
+    yPos += 30;
+
+    let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
+    if (shaderIndex === -1) shaderIndex = 0;
+
+    const shaderButton = createTextButton(
+      this,
+      this.scale.width / 2,
+      yPos,
+      shaderOptions[shaderIndex].label,
+      () => {
+        shaderIndex = (shaderIndex + 1) % shaderOptions.length;
+        this.currentShader = shaderOptions[shaderIndex].value;
+        shaderButton.setText(shaderOptions[shaderIndex].label);
+        // Preview shader immediately
+        this.registry.set('shader', this.currentShader);
+        applyShaderToScene(this, this.currentShader);
+      }
+    );
+
+    yPos += 50;
+
+    // Save and Hub buttons
     const saveConfig = () => {
+      const itemsInput = textareaPanel.getChildByID('itemsInput');
       setItemsFromText(itemsInput?.value ?? '');
-      setRemoveOnSelect(removeSelect?.value === 'true');
-      setNextGame(nextGameSelect?.value ?? 'random');
-      setShader(shaderSelect?.value ?? 'neon');
-      this.registry.set('shader', shaderSelect?.value ?? 'neon');
-      applyShaderToScene(this, this.registry.get('shader'));
+      setRemoveOnSelect(this.currentRemoveOnSelect);
+      setNextGame(this.currentNextGame);
+      setShader(this.currentShader);
+      this.registry.set('shader', this.currentShader);
+      applyShaderToScene(this, this.currentShader);
     };
 
-    saveBtn?.addEventListener('click', () => {
+    createTextButton(this, this.scale.width / 2 - 100, yPos, 'Save', () => {
       saveConfig();
     });
 
-    hubBtn?.addEventListener('click', () => {
+    createTextButton(this, this.scale.width / 2 + 100, yPos, 'Go to Hub', () => {
       saveConfig();
       this.scene.start('HubScene');
     });
