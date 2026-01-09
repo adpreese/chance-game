@@ -10,30 +10,48 @@ class BingoScene extends BaseGameScene {
   create() {
     this.createBaseLayout('Bingo Ball Drop');
 
-    const frame = this.add.rectangle(this.scale.width / 2, this.scale.height / 2 + 20, 520, 360, 0x0f172a, 0.4);
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2 - 10;
+    const radius = 160;
+
+    const frame = this.add.circle(centerX, centerY, radius + 24, 0x0f172a, 0.4);
     frame.setStrokeStyle(2, 0xffffff, 0.2);
 
-    for (let i = 0; i < 4; i += 1) {
-      const peg = this.matter.add.circle(this.scale.width / 2 - 150 + i * 100, this.scale.height / 2 - 20, 10, {
+    for (let i = 0; i < 12; i += 1) {
+      const angle = Phaser.Math.DegToRad((360 / 12) * i);
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      const wall = this.matter.add.circle(x, y, 12, {
         isStatic: true,
         restitution: 0.9,
       });
-      this.add.circle(peg.position.x, peg.position.y, 10, 0x7ef9ff, 0.7);
+      this.add.circle(wall.position.x, wall.position.y, 12, 0x1f2937, 0.7).setStrokeStyle(1, 0x7ef9ff, 0.6);
     }
 
-    const sensor = this.matter.add.rectangle(this.scale.width / 2, this.scale.height - 130, 160, 30, {
+    const latchY = centerY + radius + 6;
+    const latchBody = this.matter.add.rectangle(centerX, latchY, 140, 20, {
+      isStatic: true,
+      label: 'latch',
+    });
+    const latchVisual = this.add.rectangle(centerX, latchY, 140, 20, 0xfbbf24, 0.8);
+    latchVisual.setStrokeStyle(2, 0xfbbf24, 0.9);
+
+    const sensor = this.matter.add.rectangle(centerX, this.scale.height - 130, 180, 30, {
       isStatic: true,
       isSensor: true,
       label: 'sensor',
     });
-    this.add.rectangle(sensor.position.x, sensor.position.y, 160, 30, 0xfbbf24, 0.3).setStrokeStyle(2, 0xfbbf24, 0.7);
+    this.add.rectangle(sensor.position.x, sensor.position.y, 180, 30, 0xfbbf24, 0.3).setStrokeStyle(2, 0xfbbf24, 0.7);
 
     const items = getItems().slice(0, 8);
     const balls = items.map((item, index) => {
-      const x = this.scale.width / 2 - 140 + index * 40;
-      const body = this.matter.add.circle(x, this.scale.height / 2 - 160, 14, {
+      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+      const distance = Phaser.Math.FloatBetween(20, radius - 40);
+      const x = centerX + Math.cos(angle) * distance;
+      const y = centerY + Math.sin(angle) * distance;
+      const body = this.matter.add.circle(x, y, 14, {
         restitution: 1.1,
-        frictionAir: 0.01,
+        frictionAir: 0.02,
         label: `ball-${item}`,
       });
       const ball = this.add.circle(x, body.position.y, 14, 0x38bdf8, 0.9);
@@ -51,6 +69,48 @@ class BingoScene extends BaseGameScene {
       balls.forEach(({ body, ball, text }) => {
         ball.setPosition(body.position.x, body.position.y);
         text.setPosition(body.position.x, body.position.y);
+      });
+    });
+
+    this.matter.world.setGravity(0, 0);
+    const spinState = { active: true };
+    const spinForce = 0.0006;
+
+    this.time.addEvent({
+      delay: 16,
+      loop: true,
+      callback: () => {
+        if (!spinState.active) {
+          return;
+        }
+        balls.forEach(({ body }) => {
+          const dx = body.position.x - centerX;
+          const dy = body.position.y - centerY;
+          const distance = Math.max(Math.hypot(dx, dy), 1);
+          const tangentX = -dy / distance;
+          const tangentY = dx / distance;
+          this.matter.body.applyForce(body, body.position, {
+            x: tangentX * spinForce,
+            y: tangentY * spinForce,
+          });
+        });
+      },
+    });
+
+    this.time.delayedCall(3000, () => {
+      spinState.active = false;
+      this.matter.world.setGravity(0, 0.9);
+      this.tweens.add({
+        targets: latchVisual,
+        y: latchVisual.y + 90,
+        duration: 500,
+        ease: 'Cubic.easeIn',
+        onUpdate: () => {
+          this.matter.body.setPosition(latchBody, { x: latchBody.position.x, y: latchVisual.y });
+        },
+        onComplete: () => {
+          this.matter.world.remove(latchBody);
+        },
       });
     });
 
