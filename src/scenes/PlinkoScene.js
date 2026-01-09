@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
 
+const randomSlotColor = () => Phaser.Display.Color.HSLToColor(Math.random(), 0.7, 0.45).color;
+
 class PlinkoScene extends BaseGameScene {
   constructor() {
     super('PlinkoScene');
@@ -49,13 +51,14 @@ class PlinkoScene extends BaseGameScene {
     for (let i = 0; i < slotCount; i += 1) {
       const slotX = slotStartX + i * (slotWidth + slotGap);
       const slotItem = shuffledItems[i % shuffledItems.length];
+      const slotColor = randomSlotColor();
       const slotBody = this.matter.add.rectangle(slotX, baseY, slotWidth, 22, {
         isStatic: true,
         isSensor: true,
         label: `slot-${i}`,
       });
       slotBodies.set(slotBody.id, slotItem);
-      this.add.rectangle(slotX, baseY, slotWidth, 22, 0x1f2937, 0.9);
+      this.add.rectangle(slotX, baseY, slotWidth, 22, slotColor, 0.9);
       this.createItemLabel(slotX, baseY, slotItem, {
         fontSize: '12px',
         color: '#f8fafc',

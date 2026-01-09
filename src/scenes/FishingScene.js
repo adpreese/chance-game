@@ -2,6 +2,13 @@ import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
 
+const randomFishColors = () => {
+  const hue = Math.random();
+  const bodyColor = Phaser.Display.Color.HSLToColor(hue, 0.7, 0.6).color;
+  const tailColor = Phaser.Display.Color.HSLToColor(hue, 0.7, 0.7).color;
+  return { bodyColor, tailColor };
+};
+
 class FishingScene extends BaseGameScene {
   constructor() {
     super('FishingScene');
@@ -84,13 +91,14 @@ class FishingScene extends BaseGameScene {
     const fishBodies = fishItems.map((item) => {
       const x = Phaser.Math.FloatBetween(pondBounds.left, pondBounds.right);
       const y = Phaser.Math.FloatBetween(pondBounds.top, pondBounds.bottom);
+      const { bodyColor, tailColor } = randomFishColors();
       const body = this.matter.add.circle(x, y, 10, {
         restitution: 1.05,
         frictionAir: 0.015,
         label: `fish-${item}`,
       });
-      const fishBody = this.add.ellipse(0, 0, 22, 12, 0xf472b6, 0.9);
-      const fishTail = this.add.triangle(-12, 0, 0, 0, -8, 6, -8, -6, 0xf9a8d4, 0.9);
+      const fishBody = this.add.ellipse(0, 0, 22, 12, bodyColor, 0.9);
+      const fishTail = this.add.triangle(-12, 0, 0, 0, -8, 6, -8, -6, tailColor, 0.9);
       const fishText = this.createItemLabel(0, -16, item, {
         fontSize: '11px',
         color: '#f8fafc',
@@ -121,8 +129,8 @@ class FishingScene extends BaseGameScene {
       delay: 160,
       loop: true,
       callback: () => {
-        const forceX = Phaser.Math.FloatBetween(-0.006, 0.006);
-        const forceY = 0.002; // Constant downward force
+        const forceX = Phaser.Math.FloatBetween(-0.003, 0.003);
+        const forceY = 0.004; // Constant downward force
         this.matter.body.applyForce(hookBody, hookBody.position, { x: forceX, y: forceY });
       },
     });
