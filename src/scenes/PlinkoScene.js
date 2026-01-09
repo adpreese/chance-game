@@ -59,8 +59,11 @@ class PlinkoScene extends BaseGameScene {
     this.createBaseLayout('Plinko Drop');
 
     if (this.game.renderer.type === Phaser.WEBGL) {
-      const pipeline = new NeonPurplePostFX(this.game);
-      this.cameras.main.setPostPipeline(pipeline);
+      const pipelineKey = 'NeonPurplePlinko';
+      if (!this.game.renderer.pipelines.get(pipelineKey)) {
+        this.game.renderer.pipelines.addPostPipeline(pipelineKey, NeonPurplePostFX);
+      }
+      this.cameras.main.setPostPipeline(pipelineKey);
     }
 
     this.matter.world.setGravity(0, 1.2);
