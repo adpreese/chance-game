@@ -10,6 +10,9 @@ class FishingScene extends BaseGameScene {
   create() {
     this.createBaseLayout('Fishing Pond');
 
+    // Disable gravity for underwater physics
+    this.matter.world.setGravity(0, 0);
+
     const pond = this.add.rectangle(this.scale.width / 2, this.scale.height / 2 + 60, 520, 260, 0x1e40af, 0.6);
     pond.setStrokeStyle(2, 0x93c5fd, 0.8);
 
@@ -21,8 +24,21 @@ class FishingScene extends BaseGameScene {
     });
     const hookVisual = this.add.circle(hookBody.position.x, hookBody.position.y, 10, 0xfbbf24, 1);
     const hookTip = this.add.triangle(hookBody.position.x, hookBody.position.y + 8, 0, 0, 8, 6, 0, 12, 0xfef3c7, 1);
-    this.matter.add.worldConstraint(hookBody, 120, 0.02, { pointA: { x: anchor.x, y: anchor.y } });
+    const constraint = this.matter.add.worldConstraint(hookBody, 120, 0.02, { pointA: { x: anchor.x, y: anchor.y } });
     const line = this.add.line(0, 0, anchor.x, anchor.y, hookBody.position.x, hookBody.position.y, 0xffffff, 0.6).setOrigin(0, 0);
+
+    // Animate the anchor position left and right
+    this.tweens.add({
+      targets: anchor,
+      x: { from: this.scale.width / 2 - 80, to: this.scale.width / 2 + 80 },
+      duration: 2500,
+      ease: 'Sine.easeInOut',
+      yoyo: true,
+      repeat: -1,
+      onUpdate: () => {
+        constraint.pointA = { x: anchor.x, y: anchor.y };
+      },
+    });
 
     const pondBounds = {
       left: pond.getCenter().x - pond.width / 2 + 30,
@@ -30,6 +46,39 @@ class FishingScene extends BaseGameScene {
       top: pond.getCenter().y - pond.height / 2 + 30,
       bottom: pond.getCenter().y + pond.height / 2 - 30,
     };
+
+    // Create rigid walls around the pond
+    const wallThickness = 20;
+    const pondCenterX = pond.getCenter().x;
+    const pondCenterY = pond.getCenter().y;
+
+    // Top wall
+    this.matter.add.rectangle(pondCenterX, pondBounds.top - wallThickness / 2, pond.width - 60, wallThickness, {
+      isStatic: true,
+      restitution: 0.8,
+      label: 'pond-wall',
+    });
+
+    // Bottom wall
+    this.matter.add.rectangle(pondCenterX, pondBounds.bottom + wallThickness / 2, pond.width - 60, wallThickness, {
+      isStatic: true,
+      restitution: 0.8,
+      label: 'pond-wall',
+    });
+
+    // Left wall
+    this.matter.add.rectangle(pondBounds.left - wallThickness / 2, pondCenterY, wallThickness, pond.height - 60, {
+      isStatic: true,
+      restitution: 0.8,
+      label: 'pond-wall',
+    });
+
+    // Right wall
+    this.matter.add.rectangle(pondBounds.right + wallThickness / 2, pondCenterY, wallThickness, pond.height - 60, {
+      isStatic: true,
+      restitution: 0.8,
+      label: 'pond-wall',
+    });
 
     const fishItems = getItems();
     const fishBodies = fishItems.map((item) => {
@@ -61,9 +110,9 @@ class FishingScene extends BaseGameScene {
           if (caught) {
             return;
           }
-          const forceX = Phaser.Math.FloatBetween(-0.004, 0.004);
-          const forceY = Phaser.Math.FloatBetween(-0.003, 0.003);
-          body.applyForce({ x: forceX, y: forceY });
+          const forceX = Phaser.Math.FloatBetween(-0.002, 0.002);
+          const forceY = Phaser.Math.FloatBetween(-0.0015, 0.0015);
+          this.matter.body.applyForce(body, body.position, { x: forceX, y: forceY });
         });
       },
     });
@@ -72,9 +121,9 @@ class FishingScene extends BaseGameScene {
       delay: 160,
       loop: true,
       callback: () => {
-        const forceX = Phaser.Math.FloatBetween(-0.0025, 0.0025);
-        const forceY = Phaser.Math.FloatBetween(-0.002, 0.0015);
-        hookBody.applyForce({ x: forceX, y: forceY });
+        const forceX = Phaser.Math.FloatBetween(-0.006, 0.006);
+        const forceY = 0.002; // Constant downward force
+        this.matter.body.applyForce(hookBody, hookBody.position, { x: forceX, y: forceY });
       },
     });
 
