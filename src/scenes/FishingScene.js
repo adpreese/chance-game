@@ -129,8 +129,8 @@ class FishingScene extends BaseGameScene {
       delay: 160,
       loop: true,
       callback: () => {
-        const forceX = Phaser.Math.FloatBetween(-0.006, 0.006);
-        const forceY = 0.002; // Constant downward force
+        const forceX = Phaser.Math.FloatBetween(-0.003, 0.003);
+        const forceY = 0.004; // Constant downward force
         this.matter.body.applyForce(hookBody, hookBody.position, { x: forceX, y: forceY });
       },
     });
