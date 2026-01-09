@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chance Arcade</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0d0f1a;
+        color: #f5f5f5;
+        font-family: "Inter", system-ui, sans-serif;
+        height: 100%;
+      }
+      #app {
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .ui-panel {
+        background: rgba(12, 14, 24, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 16px;
+        color: #f5f5f5;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      }
+      .ui-panel label {
+        display: block;
+        margin-top: 8px;
+        margin-bottom: 4px;
+        font-size: 0.9rem;
+        opacity: 0.85;
+      }
+      .ui-panel textarea,
+      .ui-panel select,
+      .ui-panel button {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+      }
+      .ui-panel button {
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 10px;
+      }
+      .ui-panel .row {
+        display: flex;
+        gap: 10px;
+      }
+      .ui-panel .row > * {
+        flex: 1;
+      }
+      .hud-button {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 8px 14px;
+        color: #fff;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
