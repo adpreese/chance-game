@@ -11,7 +11,7 @@ class PlinkoScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Plinko Drop');
+    this.createBaseLayout('Plinko Drop Showdown!');
 
     this.matter.world.setGravity(0, 1.2);
 

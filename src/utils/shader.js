@@ -686,4 +686,17 @@ const applySelectedShader = (scene) => {
   }
 };
 
-export { applySelectedShader };
+const applyTextBoxShader = (scene, gameObject, pipelineKey = 'TreeOfLife') => {
+  if (scene.game.renderer.type !== Phaser.WEBGL) {
+    return;
+  }
+
+  if (!gameObject || typeof gameObject.setPostPipeline !== 'function') {
+    return;
+  }
+
+  ensureShaderPipelines(scene.game);
+  gameObject.setPostPipeline(pipelineKey);
+};
+
+export { applySelectedShader, applyTextBoxShader };

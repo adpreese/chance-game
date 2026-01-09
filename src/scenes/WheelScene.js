@@ -30,7 +30,7 @@ class WheelScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Spin the Wheel');
+    this.createBaseLayout('Spin the Wheel of Fortune!');
 
     const rawItems = getItems();
     const items = rawItems.length >= 2 ? rawItems.slice(0, Math.min(rawItems.length, 10)) : ['Yes', 'No'];
