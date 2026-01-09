@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
 
+const randomBallColor = () => Phaser.Display.Color.HSLToColor(Math.random(), 0.7, 0.6).color;
+
 class BingoScene extends BaseGameScene {
   constructor() {
     super('BingoScene');
@@ -81,12 +83,13 @@ class BingoScene extends BaseGameScene {
       const distance = Phaser.Math.FloatBetween(20, radius - 40);
       const x = centerX + Math.cos(angle) * distance;
       const y = centerY + Math.sin(angle) * distance;
+      const ballColor = randomBallColor();
       const body = this.matter.add.circle(x, y, 14, {
         restitution: 1.1,
         frictionAir: 0.02,
         label: `ball-${item}`,
       });
-      const ball = this.add.circle(x, body.position.y, 14, 0x38bdf8, 0.9);
+      const ball = this.add.circle(x, body.position.y, 14, ballColor, 0.9);
       const text = this.createItemLabel(x, body.position.y, item, {
         fontSize: '10px',
         color: '#0f172a',
