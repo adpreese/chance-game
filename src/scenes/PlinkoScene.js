@@ -3,11 +3,13 @@ import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
 
 const neonPurpleFragmentShader = `
+#define SHADER_NAME NEON_PURPLE_FS
+
 precision mediump float;
 
 uniform sampler2D uMainSampler;
-uniform float time;
-uniform vec2 resolution;
+uniform float uTime;
+uniform vec2 uResolution;
 
 varying vec2 outTexCoord;
 
@@ -20,8 +22,8 @@ void main() {
   vec4 baseColor = texture2D(uMainSampler, uv);
 
   float vignette = smoothstep(0.9, 0.2, distance(uv, vec2(0.5)));
-  float scanline = sin((uv.y * resolution.y * 0.6) + (time * 4.0)) * 0.04;
-  float noise = rand(uv * (time + 0.1)) * 0.02;
+  float scanline = sin((uv.y * uResolution.y * 0.6) + (uTime * 4.0)) * 0.04;
+  float noise = rand(uv * (uTime + 0.1)) * 0.02;
 
   vec3 neonTint = mix(baseColor.rgb, vec3(0.85, 0.2, 1.0), 0.35);
   neonTint += vec3(0.25, 0.0, 0.4) * vignette;
@@ -35,14 +37,16 @@ class NeonPurplePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
       game,
-      renderTarget: true,
       fragShader: neonPurpleFragmentShader,
     });
+
+    this._time = 0;
   }
 
   onPreRender() {
-    this.set1f('time', this.game.loop.time / 1000);
-    this.set2f('resolution', this.renderer.width, this.renderer.height);
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
   }
 }
 
@@ -55,12 +59,8 @@ class PlinkoScene extends BaseGameScene {
     this.createBaseLayout('Plinko Drop');
 
     if (this.game.renderer.type === Phaser.WEBGL) {
-      const pipelineKey = 'NeonPurplePlinko';
-      const existingPipeline = this.game.renderer.pipelines.get(pipelineKey);
-      if (!existingPipeline) {
-        this.game.renderer.pipelines.add(pipelineKey, new NeonPurplePostFX(this.game));
-      }
-      this.cameras.main.setPostPipeline(pipelineKey);
+      const pipeline = new NeonPurplePostFX(this.game);
+      this.cameras.main.setPostPipeline(pipeline);
     }
 
     this.matter.world.setGravity(0, 1.2);
