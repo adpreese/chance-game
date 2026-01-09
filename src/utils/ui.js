@@ -1,4 +1,12 @@
-const createTextButton = (scene, x, y, label, onClick) => {
+import { playSfx } from './audio.js';
+
+const DEFAULT_SFX_KEYS = {
+  click: 'buttonClick',
+  hover: 'hover',
+};
+
+const createTextButton = (scene, x, y, label, onClick, sfxKeys = {}) => {
+  const resolvedSfxKeys = { ...DEFAULT_SFX_KEYS, ...(sfxKeys ?? {}) };
   const button = scene.add
     .text(x, y, label, {
       fontFamily: 'Inter, system-ui, sans-serif',
@@ -10,8 +18,18 @@ const createTextButton = (scene, x, y, label, onClick) => {
     .setOrigin(0.5)
     .setInteractive({ useHandCursor: true });
 
-  button.on('pointerdown', () => onClick?.());
-  button.on('pointerover', () => button.setStyle({ backgroundColor: 'rgba(255,255,255,0.3)' }));
+  button.on('pointerdown', () => {
+    if (resolvedSfxKeys.click) {
+      playSfx(scene, resolvedSfxKeys.click);
+    }
+    onClick?.();
+  });
+  button.on('pointerover', () => {
+    if (resolvedSfxKeys.hover) {
+      playSfx(scene, resolvedSfxKeys.hover);
+    }
+    button.setStyle({ backgroundColor: 'rgba(255,255,255,0.3)' });
+  });
   button.on('pointerout', () => button.setStyle({ backgroundColor: 'rgba(255,255,255,0.15)' }));
   return button;
 };
