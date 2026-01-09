@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { getState, setItemsFromText, setNextGame, setRemoveOnSelect, setShader } from '../utils/store.js';
 import { createTextButton, createPanel } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
+import { registerSfx } from '../utils/audio.js';
 
 class ConfigScene extends Phaser.Scene {
   constructor() {
@@ -12,6 +13,7 @@ class ConfigScene extends Phaser.Scene {
   }
 
   create() {
+    registerSfx(this);
     const { items, removeOnSelect, nextGame, shader } = getState();
 
     // Initialize current values
