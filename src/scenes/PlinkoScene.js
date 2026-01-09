@@ -10,7 +10,7 @@ class PlinkoScene extends BaseGameScene {
   create() {
     this.createBaseLayout('Plinko Drop');
 
-    this.matter.world.setGravity(0, 0.6);
+    this.matter.world.setGravity(0, 1.2);
 
     const items = getItems();
     const shuffledItems = Phaser.Utils.Array.Shuffle([...items]);
@@ -29,7 +29,8 @@ class PlinkoScene extends BaseGameScene {
         const pegY = startY + row * spacingY;
         this.matter.add.circle(pegX, pegY, 12, {
           isStatic: true,
-          restitution: 0.4,
+          restitution: 0.6,
+          friction: 0,
           render: { fillStyle: '#7ef9ff' },
         });
         this.add.circle(pegX, pegY, 12, 0x7ef9ff, 0.7).setStrokeStyle(1, 0xffffff, 0.6);
@@ -65,14 +66,56 @@ class PlinkoScene extends BaseGameScene {
         .setOrigin(0.5);
     }
 
-    const puck = this.matter.add.circle(this.scale.width / 2, 80, 18, {
-      restitution: 0.2,
-      frictionAir: 0.05,
-      friction: 0.1,
+    const dropStartY = 80;
+    const puck = this.matter.add.circle(this.scale.width / 2, dropStartY, 18, {
+      restitution: 0.6,
+      frictionAir: 0.01,
+      friction: 0.02,
       density: 0.004,
+      label: 'plinko-puck',
     });
 
     const puckVisual = this.add.circle(puck.position.x, puck.position.y, 18, 0xffd166, 1);
+
+    const slotButtonCount = pegCols + 1;
+    const slotButtonSpacing = spacingX;
+    const slotButtonStartX = this.scale.width / 2 - ((slotButtonCount - 1) * slotButtonSpacing) / 2;
+    const slotButtonY = startY - 50;
+
+    const dropPuckAt = (x) => {
+      if (this.hasResult) {
+        return;
+      }
+      this.matter.body.setStatic(puck, false);
+      this.matter.body.setPosition(puck, { x, y: dropStartY });
+      this.matter.body.setVelocity(puck, { x: 0, y: 0 });
+      this.matter.body.setAngularVelocity(puck, 0);
+    };
+
+    for (let i = 0; i < slotButtonCount; i += 1) {
+      const buttonX = slotButtonStartX + i * slotButtonSpacing;
+      const button = this.add.rectangle(buttonX, slotButtonY, 38, 22, 0x1f2937, 0.9);
+      button.setStrokeStyle(1, 0x94a3b8, 0.6);
+      button.setInteractive({ useHandCursor: true });
+      button.on('pointerdown', () => dropPuckAt(buttonX));
+      this.add
+        .text(buttonX, slotButtonY, `${i + 1}`, {
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontSize: '12px',
+          color: '#e2e8f0',
+        })
+        .setOrigin(0.5);
+    }
+
+    this.add
+      .text(this.scale.width / 2, slotButtonY - 24, 'Choose a slot to drop from', {
+        fontFamily: 'Inter, system-ui, sans-serif',
+        fontSize: '12px',
+        color: '#94a3b8',
+      })
+      .setOrigin(0.5);
+
+    this.matter.body.setStatic(puck, true);
 
     this.matter.world.on('collisionstart', (event) => {
       if (this.hasResult) {
