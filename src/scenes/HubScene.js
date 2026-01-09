@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { getState } from '../utils/store.js';
 import { createTextButton } from '../utils/ui.js';
+import { applySelectedShader } from '../utils/shader.js';
 
 const gameCards = [
   { key: 'PlinkoScene', label: 'Plinko' },
@@ -76,6 +77,7 @@ class HubScene extends Phaser.Scene {
   }
 
   create() {
+    applySelectedShader(this);
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x0b1020, 1);
     this.add
       .text(this.scale.width / 2, 40, 'Chance Arcade', {
