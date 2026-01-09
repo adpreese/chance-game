@@ -10,6 +10,7 @@ const gameCards = [
   { key: 'FishingScene', label: 'Fishing' },
   { key: 'ClawScene', label: 'Claw Game' },
   { key: 'BingoScene', label: 'Bingo Ball' },
+  { key: 'HorseRaceScene', label: 'Horse Dash' },
 ];
 
 const drawPreview = (scene, graphics, key, x, y, width, height) => {
@@ -57,6 +58,13 @@ const drawPreview = (scene, graphics, key, x, y, width, height) => {
       graphics.fillStyle(0xf472b6, 0.7).fillCircle(centerX + 15, centerY - 10, 12);
       graphics.fillStyle(0xfbbf24, 0.7).fillCircle(centerX + 5, centerY + 15, 12);
       graphics.lineStyle(2, 0xffffff, 0.6).strokeRect(centerX - 50, centerY + 30, 100, 16);
+      break;
+    case 'HorseRaceScene':
+      graphics.fillStyle(0xf97316, 0.9).fillRoundedRect(centerX - 50, centerY - 15, 36, 14, 6);
+      graphics.fillStyle(0xf97316, 0.9).fillCircle(centerX - 12, centerY - 18, 6);
+      graphics.fillStyle(0x38bdf8, 0.9).fillRoundedRect(centerX - 10, centerY + 5, 36, 14, 6);
+      graphics.fillStyle(0x38bdf8, 0.9).fillCircle(centerX + 28, centerY + 2, 6);
+      graphics.lineStyle(2, 0xffffff, 0.4).lineBetween(centerX + 45, centerY - 30, centerX + 45, centerY + 30);
       break;
     default:
       break;
