@@ -124,22 +124,7 @@ class HubScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5);
     });
 
-    const { items, removeOnSelect, nextGame } = getState();
-
-    this.add
-      .text(40, this.scale.height - 80, `Items loaded: ${items.length}`, {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '16px',
-        color: '#9ca3af',
-      })
-      .setOrigin(0, 0.5);
-    this.add
-      .text(40, this.scale.height - 55, `Remove on select: ${removeOnSelect ? 'On' : 'Off'}`, {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '16px',
-        color: '#9ca3af',
-      })
-      .setOrigin(0, 0.5);
+    const { nextGame } = getState();
 
     createTextButton(this, this.scale.width / 2, this.scale.height - 60, 'Play Configured Game', () => {
       const target = nextGame === 'random' ? Phaser.Utils.Array.GetRandom(gameCards).key : nextGame;
