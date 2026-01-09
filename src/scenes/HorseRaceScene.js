@@ -58,7 +58,13 @@ class HorseRaceScene extends BaseGameScene {
       const horse = buildHorse(this, horseColors[index % horseColors.length]);
       horse.setPosition(startX, laneY);
       horse.name = name;
-      horse.speed = name === this.winnerName ? Phaser.Math.FloatBetween(2.5, 2.9) : Phaser.Math.FloatBetween(1.7, 2.2);
+      const isWinner = name === this.winnerName;
+      horse.minSpeed = isWinner ? 1.8 : 1.2;
+      horse.maxSpeed = isWinner ? 3.4 : 2.7;
+      horse.speed = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
+      horse.speedTarget = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
+      horse.speedJitter = isWinner ? 0.12 : 0.16;
+      horse.targetShiftChance = 0.08;
 
       this.add
         .text(startX - 30, laneY, name, {
@@ -79,6 +85,12 @@ class HorseRaceScene extends BaseGameScene {
           return;
         }
         this.horses.forEach((horse) => {
+          if (Phaser.Math.FloatBetween(0, 1) < horse.targetShiftChance) {
+            horse.speedTarget = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
+          }
+          horse.speed += (horse.speedTarget - horse.speed) * 0.08;
+          horse.speed += Phaser.Math.FloatBetween(-horse.speedJitter, horse.speedJitter);
+          horse.speed = Phaser.Math.Clamp(horse.speed, horse.minSpeed, horse.maxSpeed);
           horse.x += horse.speed;
         });
 
