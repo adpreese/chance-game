@@ -151,10 +151,19 @@ const registerPipelines = (game) => {
     console.warn('Renderer not ready for pipelines');
     return;
   }
-  game.renderer.pipelines.add('NeonPipeline', new NeonPipeline(game));
-  game.renderer.pipelines.add('SolarpunkPipeline', new SolarpunkPipeline(game));
-  game.renderer.pipelines.add('MidcenturyPipeline', new MidcenturyPipeline(game));
-  game.renderer.pipelines.add('Retro16Pipeline', new Retro16Pipeline(game));
+  const pipelineManager = game.renderer.pipelines;
+  const postPipelines = [
+    ['NeonPipeline', NeonPipeline],
+    ['SolarpunkPipeline', SolarpunkPipeline],
+    ['MidcenturyPipeline', MidcenturyPipeline],
+    ['Retro16Pipeline', Retro16Pipeline],
+  ];
+
+  postPipelines.forEach(([key, PipelineClass]) => {
+    if (!pipelineManager.postPipelineClasses.has(key)) {
+      pipelineManager.addPostPipeline(key, PipelineClass);
+    }
+  });
 };
 
 const pipelineMap = {
