@@ -75,7 +75,7 @@ const applySelectedShader = (scene) => {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('NeonPurple');
   } else {
-    camera.clearPostPipeline();
+    camera.resetPostPipeline();
   }
 };
 
