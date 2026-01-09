@@ -91,10 +91,11 @@ class NeonPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     });
   }
 
-  onDraw(target) {
+  onDraw(source) {
     this.set1f('uTime', this.game.loop.time / 1000);
-    this.set2f('uResolution', target.width, target.height);
-    this.drawFrame(target, target);
+    this.set2f('uResolution', source.width, source.height);
+    this.drawFrame(source, this.fullFrame1);
+    this.copyToGame(this.fullFrame1);
   }
 }
 
@@ -107,10 +108,11 @@ class SolarpunkPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     });
   }
 
-  onDraw(target) {
+  onDraw(source) {
     this.set1f('uTime', this.game.loop.time / 1000);
-    this.set2f('uResolution', target.width, target.height);
-    this.drawFrame(target, target);
+    this.set2f('uResolution', source.width, source.height);
+    this.drawFrame(source, this.fullFrame1);
+    this.copyToGame(this.fullFrame1);
   }
 }
 
@@ -123,10 +125,11 @@ class MidcenturyPipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline 
     });
   }
 
-  onDraw(target) {
+  onDraw(source) {
     this.set1f('uTime', this.game.loop.time / 1000);
-    this.set2f('uResolution', target.width, target.height);
-    this.drawFrame(target, target);
+    this.set2f('uResolution', source.width, source.height);
+    this.drawFrame(source, this.fullFrame1);
+    this.copyToGame(this.fullFrame1);
   }
 }
 
@@ -139,10 +142,11 @@ class Retro16Pipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
     });
   }
 
-  onDraw(target) {
+  onDraw(source) {
     this.set1f('uTime', this.game.loop.time / 1000);
-    this.set2f('uResolution', target.width, target.height);
-    this.drawFrame(target, target);
+    this.set2f('uResolution', source.width, source.height);
+    this.drawFrame(source, this.fullFrame1);
+    this.copyToGame(this.fullFrame1);
   }
 }
 
@@ -151,10 +155,19 @@ const registerPipelines = (game) => {
     console.warn('Renderer not ready for pipelines');
     return;
   }
-  game.renderer.pipelines.add('NeonPipeline', new NeonPipeline(game));
-  game.renderer.pipelines.add('SolarpunkPipeline', new SolarpunkPipeline(game));
-  game.renderer.pipelines.add('MidcenturyPipeline', new MidcenturyPipeline(game));
-  game.renderer.pipelines.add('Retro16Pipeline', new Retro16Pipeline(game));
+  const pipelineManager = game.renderer.pipelines;
+  const postPipelines = [
+    ['NeonPipeline', NeonPipeline],
+    ['SolarpunkPipeline', SolarpunkPipeline],
+    ['MidcenturyPipeline', MidcenturyPipeline],
+    ['Retro16Pipeline', Retro16Pipeline],
+  ];
+
+  postPipelines.forEach(([key, PipelineClass]) => {
+    if (!pipelineManager.postPipelineClasses.has(key)) {
+      pipelineManager.addPostPipeline(key, PipelineClass);
+    }
+  });
 };
 
 const pipelineMap = {
