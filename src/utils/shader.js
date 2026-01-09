@@ -181,6 +181,53 @@ void main() {
 }
 `;
 
+const crossHatchFragmentShader = `
+#define SHADER_NAME CROSS_HATCH_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float hatchLine(vec2 uv, float spacing, float angle) {
+  mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+  vec2 rotated = rot * (uv * uResolution / spacing);
+  float line = abs(fract(rotated.y) - 0.5);
+  return smoothstep(0.52, 0.45, line);
+}
+
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  float shade = 1.0 - luma(baseColor.rgb);
+  float hatchA = hatchLine(uv, 7.0, 0.0);
+  float hatchB = hatchLine(uv, 7.0, 1.5708);
+  float hatchC = hatchLine(uv, 9.0, 0.7854);
+  float hatchD = hatchLine(uv, 11.0, -0.7854);
+
+  float hatchMask = 0.0;
+  hatchMask += step(0.25, shade) * hatchA;
+  hatchMask += step(0.45, shade) * hatchB;
+  hatchMask += step(0.65, shade) * hatchC;
+  hatchMask += step(0.8, shade) * hatchD;
+  hatchMask = clamp(hatchMask, 0.0, 1.0);
+
+  vec3 ink = vec3(0.08, 0.08, 0.12);
+  vec3 shaded = mix(baseColor.rgb, ink, hatchMask * 0.65);
+  shaded = mix(shaded, baseColor.rgb * 0.9, 0.15);
+
+  gl_FragColor = vec4(shaded, baseColor.a);
+}
+`;
+
 const watercolorFragmentShader = `
 #define SHADER_NAME WATERCOLOR_FS
 
@@ -380,6 +427,23 @@ class HalftonePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   }
 }
 
+class CrossHatchPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: crossHatchFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
 class WatercolorPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -442,6 +506,7 @@ const ensureShaderPipelines = (game) => {
     { key: 'TreeOfLife', pipeline: TreeOfLifePostFX },
     { key: 'CelShading', pipeline: CelShadingPostFX },
     { key: 'Halftone', pipeline: HalftonePostFX },
+    { key: 'CrossHatch', pipeline: CrossHatchPostFX },
     { key: 'Watercolor', pipeline: WatercolorPostFX },
     { key: 'Impressionist', pipeline: ImpressionistPostFX },
     { key: 'FilmNoir', pipeline: FilmNoirPostFX },
@@ -450,6 +515,44 @@ const ensureShaderPipelines = (game) => {
   pipelines.forEach(({ key, pipeline }) => {
     if (!game.renderer.pipelines.get(key)) {
       game.renderer.pipelines.addPostPipeline(key, pipeline);
+    }
+  });
+};
+
+const applyCrossHatchToScene = (scene) => {
+  const shouldApply = (gameObject) =>
+    gameObject &&
+    typeof gameObject.setPostPipeline === 'function' &&
+    gameObject.type !== 'DOMElement';
+
+  const applyToObject = (gameObject) => {
+    if (shouldApply(gameObject)) {
+      gameObject.setPostPipeline('CrossHatch');
+    }
+  };
+
+  scene.children?.list?.forEach(applyToObject);
+
+  const listener = (gameObject) => {
+    applyToObject(gameObject);
+  };
+
+  scene.sys.events.on(Phaser.Scenes.Events.ADDED_TO_SCENE, listener);
+  scene.__crossHatchListener = listener;
+  scene.sys.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+    clearCrossHatchFromScene(scene);
+  });
+};
+
+const clearCrossHatchFromScene = (scene) => {
+  if (scene.__crossHatchListener) {
+    scene.sys.events.off(Phaser.Scenes.Events.ADDED_TO_SCENE, scene.__crossHatchListener);
+    scene.__crossHatchListener = null;
+  }
+
+  scene.children?.list?.forEach((gameObject) => {
+    if (gameObject && typeof gameObject.removePostPipeline === 'function') {
+      gameObject.removePostPipeline('CrossHatch');
     }
   });
 };
@@ -464,6 +567,8 @@ const applySelectedShader = (scene) => {
   if (!camera) {
     return;
   }
+
+  clearCrossHatchFromScene(scene);
 
   if (shader === 'neon') {
     ensureShaderPipelines(scene.game);
@@ -480,6 +585,10 @@ const applySelectedShader = (scene) => {
   } else if (shader === 'halftone') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('Halftone');
+  } else if (shader === 'cross-hatch') {
+    ensureShaderPipelines(scene.game);
+    camera.resetPostPipeline();
+    applyCrossHatchToScene(scene);
   } else if (shader === 'watercolor') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('Watercolor');
