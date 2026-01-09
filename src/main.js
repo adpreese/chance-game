@@ -7,7 +7,7 @@ import DiceScene from './scenes/DiceScene.js';
 import FishingScene from './scenes/FishingScene.js';
 import ClawScene from './scenes/ClawScene.js';
 import BingoScene from './scenes/BingoScene.js';
-import { registerPipelines } from './utils/shaders.js';
+import { applyShaderToScene, registerPipelines } from './utils/shaders.js';
 import { getState } from './utils/store.js';
 
 const config = {
@@ -30,10 +30,16 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// Wait for renderer to be ready before registering pipelines
-game.events.once('ready', () => {
+game.events.once('boot', () => {
   registerPipelines(game);
 
   const { shader } = getState();
   game.registry.set('shader', shader);
+});
+
+game.events.once('ready', () => {
+  const activeScene = game.scene.getScenes(true)[0];
+  if (activeScene) {
+    applyShaderToScene(activeScene, game.registry.get('shader'));
+  }
 });

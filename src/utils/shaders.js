@@ -196,6 +196,14 @@ const applyShaderToScene = (scene, shaderKey) => {
     return;
   }
 
+  const pipelineManager = scene.game.renderer?.pipelines;
+  if (!pipelineManager?.postPipelineClasses?.has(pipelineKey)) {
+    scene.game.events.once('ready', () => {
+      applyShaderToScene(scene, shaderKey);
+    });
+    return;
+  }
+
   // Add the post-processing effect
   scene.cameras.main.setPostPipeline(pipelineKey);
 };
