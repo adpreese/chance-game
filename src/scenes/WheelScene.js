@@ -46,20 +46,18 @@ class WheelScene extends BaseGameScene {
     items.forEach((item, index) => {
       const angle = (Math.PI * 2 * index) / items.length - Math.PI / 2;
       const radius = 100;
-      const label = this.add
-        .text(
-          wheel.x + Math.cos(angle) * radius,
-          wheel.y + Math.sin(angle) * radius,
-          item,
-          {
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontSize: '12px',
-            color: '#0f172a',
-            align: 'center',
-            wordWrap: { width: 80 },
-          },
-        )
-        .setOrigin(0.5);
+      const label = this.createItemLabel(
+        wheel.x + Math.cos(angle) * radius,
+        wheel.y + Math.sin(angle) * radius,
+        item,
+        {
+          fontSize: '12px',
+          color: '#f8fafc',
+          stroke: '#0f172a',
+          strokeThickness: 3,
+          wordWrap: { width: 80 },
+        },
+      );
       label.setRotation(angle + Math.PI / 2);
     });
 

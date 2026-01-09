@@ -112,15 +112,13 @@ class PlinkoScene extends BaseGameScene {
       });
       slotBodies.set(slotBody.id, slotItem);
       this.add.rectangle(slotX, baseY, slotWidth, 22, 0x1f2937, 0.9);
-      this.add
-        .text(slotX, baseY, slotItem, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '12px',
-          color: '#e2e8f0',
-          align: 'center',
-          wordWrap: { width: slotWidth - 10 },
-        })
-        .setOrigin(0.5);
+      this.createItemLabel(slotX, baseY, slotItem, {
+        fontSize: '12px',
+        color: '#f8fafc',
+        stroke: '#0f172a',
+        strokeThickness: 3,
+        wordWrap: { width: slotWidth - 10 },
+      });
     }
 
     const dropStartY = 80;
@@ -159,13 +157,13 @@ class PlinkoScene extends BaseGameScene {
       button.setStrokeStyle(1, 0x94a3b8, 0.6);
       button.setInteractive({ useHandCursor: true });
       button.on('pointerdown', () => dropPuckAt(buttonX));
-      this.add
-        .text(buttonX, slotButtonY, `${i + 1}`, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '12px',
-          color: '#e2e8f0',
-        })
-        .setOrigin(0.5);
+      const buttonLabel = this.createItemLabel(buttonX, slotButtonY, `${i + 1}`, {
+        fontSize: '12px',
+        color: '#e2e8f0',
+        stroke: '#0f172a',
+        strokeThickness: 2,
+      });
+      buttonLabel.setShadow(0, 1, 'rgba(15, 23, 42, 0.6)', 3, true, true);
     }
 
     this.add

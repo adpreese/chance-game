@@ -26,11 +26,22 @@ class BaseGameScene extends Phaser.Scene {
 
     this.resultText = this.add
       .text(this.scale.width / 2, this.scale.height - 40, 'Result pending...', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '18px',
-        color: '#ffd36e',
+        fontFamily: '"Bangers", "Impact", "Trebuchet MS", sans-serif',
+        fontSize: '26px',
+        fontStyle: '700',
+        color: '#ffe08a',
+        stroke: '#0f172a',
+        strokeThickness: 5,
+        shadow: {
+          offsetX: 0,
+          offsetY: 3,
+          color: 'rgba(255, 170, 0, 0.7)',
+          blur: 10,
+          fill: true,
+        },
       })
       .setOrigin(0.5, 0.5);
+    this.resultText.setResolution(2);
 
     this.itemPoolText = this.add
       .text(this.scale.width - 18, 32, '', {
@@ -42,6 +53,25 @@ class BaseGameScene extends Phaser.Scene {
       .setOrigin(1, 0.5);
 
     this.updateItemPoolText();
+  }
+
+  createItemLabel(x, y, text, styleOverrides = {}) {
+    const label = this.add.text(x, y, text, {
+      fontFamily: '"Rubik", "Inter", system-ui, sans-serif',
+      fontSize: '12px',
+      fontStyle: '600',
+      color: '#f8fafc',
+      align: 'center',
+      wordWrap: { width: 80 },
+      stroke: '#0f172a',
+      strokeThickness: 3,
+      padding: { left: 4, right: 4, top: 2, bottom: 2 },
+      ...styleOverrides,
+    });
+    label.setOrigin(0.5);
+    label.setShadow(0, 2, 'rgba(15, 23, 42, 0.7)', 4, true, true);
+    label.setResolution(2);
+    return label;
   }
 
   updateItemPoolText() {
