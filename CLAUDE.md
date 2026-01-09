@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Chance Arcade is a Phaser 3-based web game collection featuring multiple chance-based mini-games (Plinko, Spin Wheel, Dice Roll, Fishing, Claw Game, Bingo Ball). The game allows users to configure item pools and visual shaders, then play randomized selection games with configurable behavior.
+Chance Arcade is a Phaser 3-based web game collection featuring multiple chance-based mini-games (Plinko, Spin Wheel, Dice Roll, Fishing, Claw Game, Bingo Ball). The game allows users to configure item pools, then play randomized selection games with configurable behavior.
 
 ## Development Commands
 

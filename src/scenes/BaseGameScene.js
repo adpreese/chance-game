@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { applyShaderToScene, updateShaderUniforms } from '../utils/shaders.js';
 import { createTextButton } from '../utils/ui.js';
 import { getNextItem, getState } from '../utils/store.js';
 
@@ -43,7 +42,6 @@ class BaseGameScene extends Phaser.Scene {
       .setOrigin(1, 0.5);
 
     this.updateItemPoolText();
-    applyShaderToScene(this, this.registry.get('shader'));
   }
 
   updateItemPoolText() {
@@ -59,10 +57,6 @@ class BaseGameScene extends Phaser.Scene {
 
   setResult(text) {
     this.resultText.setText(`Result: ${text}`);
-  }
-
-  update(time) {
-    updateShaderUniforms(this, time);
   }
 }
 

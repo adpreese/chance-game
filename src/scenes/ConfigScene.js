@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
-import { applyShaderToScene, shaderOptions, updateShaderUniforms } from '../utils/shaders.js';
-import { getState, setItemsFromText, setNextGame, setRemoveOnSelect, setShader } from '../utils/store.js';
+import { getState, setItemsFromText, setNextGame, setRemoveOnSelect } from '../utils/store.js';
 import { createTextButton, createPanel } from '../utils/ui.js';
 
 class ConfigScene extends Phaser.Scene {
@@ -8,16 +7,14 @@ class ConfigScene extends Phaser.Scene {
     super('ConfigScene');
     this.currentRemoveOnSelect = false;
     this.currentNextGame = 'random';
-    this.currentShader = 'neon';
   }
 
   create() {
-    const { items, removeOnSelect, nextGame, shader } = getState();
+    const { items, removeOnSelect, nextGame } = getState();
 
     // Initialize current values
     this.currentRemoveOnSelect = removeOnSelect;
     this.currentNextGame = nextGame;
-    this.currentShader = shader;
 
     // Background
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, 0x070b18, 1);
@@ -134,37 +131,6 @@ class ConfigScene extends Phaser.Scene {
       }
     );
 
-    yPos += 40;
-
-    // Shader aesthetic (cycle button)
-    this.add
-      .text(this.scale.width / 2, yPos, 'Shader aesthetic', {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '14px',
-        color: '#d1d5db',
-      })
-      .setOrigin(0.5, 0.5);
-
-    yPos += 30;
-
-    let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
-    if (shaderIndex === -1) shaderIndex = 0;
-
-    const shaderButton = createTextButton(
-      this,
-      this.scale.width / 2,
-      yPos,
-      shaderOptions[shaderIndex].label,
-      () => {
-        shaderIndex = (shaderIndex + 1) % shaderOptions.length;
-        this.currentShader = shaderOptions[shaderIndex].value;
-        shaderButton.setText(shaderOptions[shaderIndex].label);
-        // Preview shader immediately
-        this.registry.set('shader', this.currentShader);
-        applyShaderToScene(this, this.currentShader);
-      }
-    );
-
     yPos += 50;
 
     // Save and Hub buttons
@@ -173,9 +139,6 @@ class ConfigScene extends Phaser.Scene {
       setItemsFromText(itemsInput?.value ?? '');
       setRemoveOnSelect(this.currentRemoveOnSelect);
       setNextGame(this.currentNextGame);
-      setShader(this.currentShader);
-      this.registry.set('shader', this.currentShader);
-      applyShaderToScene(this, this.currentShader);
     };
 
     createTextButton(this, this.scale.width / 2 - 100, yPos, 'Save', () => {
@@ -186,12 +149,6 @@ class ConfigScene extends Phaser.Scene {
       saveConfig();
       this.scene.start('HubScene');
     });
-
-    applyShaderToScene(this, this.registry.get('shader'));
-  }
-
-  update(time) {
-    updateShaderUniforms(this, time);
   }
 }
 

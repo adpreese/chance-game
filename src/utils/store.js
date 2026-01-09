@@ -14,7 +14,6 @@ const state = {
   originalItems: [...fallbackItems],
   removeOnSelect: false,
   nextGame: 'random',
-  shader: 'neon',
 };
 
 const parseItems = (raw) => {
@@ -39,10 +38,6 @@ const setRemoveOnSelect = (value) => {
 
 const setNextGame = (value) => {
   state.nextGame = value;
-};
-
-const setShader = (value) => {
-  state.shader = value;
 };
 
 const resetItemsIfEmpty = () => {
@@ -83,5 +78,4 @@ export {
   setItemsFromText,
   setNextGame,
   setRemoveOnSelect,
-  setShader,
 };

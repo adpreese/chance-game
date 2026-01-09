@@ -67,7 +67,7 @@ class PlinkoScene extends BaseGameScene {
     }
 
     const dropStartY = 80;
-    const puck = this.matter.add.circle(this.scale.width / 2, dropStartY, 18, {
+    const puck = this.matter.add.circle(this.scale.width / 2, dropStartY, 12, {
       restitution: 0.6,
       frictionAir: 0.01,
       friction: 0.02,
@@ -75,7 +75,7 @@ class PlinkoScene extends BaseGameScene {
       label: 'plinko-puck',
     });
 
-    const puckVisual = this.add.circle(puck.position.x, puck.position.y, 18, 0xffd166, 1);
+    const puckVisual = this.add.circle(puck.position.x, puck.position.y, 12, 0xffd166, 1);
 
     const slotButtonCount = pegCols + 1;
     const slotButtonSpacing = spacingX;

@@ -1,7 +1,6 @@
 import Phaser from 'phaser';
-import { applyShaderToScene, shaderOptions, updateShaderUniforms } from '../utils/shaders.js';
-import { getState, setShader } from '../utils/store.js';
-import { createPanel, createTextButton } from '../utils/ui.js';
+import { getState } from '../utils/store.js';
+import { createTextButton } from '../utils/ui.js';
 
 const gameCards = [
   { key: 'PlinkoScene', label: 'Plinko' },
@@ -119,7 +118,7 @@ class HubScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5);
     });
 
-    const { items, removeOnSelect, nextGame, shader } = getState();
+    const { items, removeOnSelect, nextGame } = getState();
 
     this.add
       .text(40, this.scale.height - 80, `Items loaded: ${items.length}`, {
@@ -145,34 +144,6 @@ class HubScene extends Phaser.Scene {
       const target = Phaser.Utils.Array.GetRandom(gameCards).key;
       this.scene.start(target);
     });
-
-    const shaderPanel = this.add.dom(this.scale.width - 160, this.scale.height - 70);
-    shaderPanel.createFromHTML(`
-      <div class="ui-panel" style="width: 180px; padding: 10px;">
-        <label style="margin-top:0;">Shader</label>
-        <select id="shaderSelect">
-          ${shaderOptions
-            .map((option) => `<option value="${option.value}">${option.label}</option>`)
-            .join('')}
-        </select>
-      </div>
-    `);
-    const shaderSelect = shaderPanel.getChildByID('shaderSelect');
-    if (shaderSelect) {
-      shaderSelect.value = shader;
-      shaderSelect.addEventListener('change', (event) => {
-        const value = event.target.value;
-        setShader(value);
-        this.registry.set('shader', value);
-        applyShaderToScene(this, value);
-      });
-    }
-
-    applyShaderToScene(this, this.registry.get('shader'));
-  }
-
-  update(time) {
-    updateShaderUniforms(this, time);
   }
 }
 
