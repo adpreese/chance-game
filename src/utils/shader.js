@@ -165,13 +165,13 @@ void main() {
 
   float angle = 0.4;
   mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-  vec2 gridUv = rot * (uv * uResolution / 6.0);
+  vec2 gridUv = rot * (uv * uResolution / 12.0);
   vec2 cell = fract(gridUv) - 0.5;
   float dist = length(cell);
 
   float ink = 1.0 - luma(baseColor.rgb);
-  float dotRadius = mix(0.05, 0.45, ink);
-  float dotMask = smoothstep(dotRadius, dotRadius - 0.1, dist);
+  float dotRadius = mix(0.08, 0.32, ink);
+  float dotMask = smoothstep(dotRadius, dotRadius - 0.05, dist);
 
   vec3 paper = vec3(0.98, 0.96, 0.92);
   vec3 inkColor = mix(baseColor.rgb, vec3(0.05, 0.05, 0.08), 0.35);
