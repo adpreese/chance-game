@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 class DiceScene extends BaseGameScene {
   constructor() {
@@ -73,6 +74,7 @@ class DiceScene extends BaseGameScene {
     const landingRotation = -landingIndex * slice;
     const totalSpins = Phaser.Math.Between(3, 5) * Math.PI * 2;
 
+    playSfx(this, 'diceRollStart');
     this.tweens.add({
       targets: spinState,
       rotation: totalSpins + landingRotation,
@@ -82,6 +84,8 @@ class DiceScene extends BaseGameScene {
       onComplete: () => {
         const choice = faces[landingIndex];
         consumeItem(choice);
+        playSfx(this, 'diceLanding');
+        playSfx(this, 'diceResult');
         this.setResult(choice);
         this.updateItemPoolText();
       },

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 const randomSlotColor = () => Phaser.Display.Color.HSLToColor(Math.random(), 0.7, 0.45).color;
 
@@ -90,6 +91,7 @@ class PlinkoScene extends BaseGameScene {
       if (this.hasResult) {
         return;
       }
+      playSfx(this, 'plinkoDrop');
       this.matter.body.setStatic(puck, false);
       this.matter.body.setPosition(puck, { x: x + ((Math.random() - 0.5) * 100), y: dropStartY + ((Math.random() - 0.5) / 20) });
     };
@@ -134,6 +136,11 @@ class PlinkoScene extends BaseGameScene {
                     (bodyB.label === 'peg' && bodyA === puck) ? bodyB : null;
 
         if (peg && involvesPuck) {
+          const now = this.time.now;
+          if (!this.lastPegSfxAt || now - this.lastPegSfxAt > 90) {
+            playSfx(this, 'plinkoPegHit');
+            this.lastPegSfxAt = now;
+          }
           // If puck is moving slowly, give it a horizontal nudge to prevent balancing
           if (puck.speed < 2) {
             const nudge = (Math.random() - 0.5) * 2.5;
@@ -144,6 +151,7 @@ class PlinkoScene extends BaseGameScene {
         if (slotItem && involvesPuck && !this.hasResult) {
           this.hasResult = true;
           const chosen = consumeItem(slotItem);
+          playSfx(this, 'plinkoSlotResult');
           this.setResult(chosen);
           this.updateItemPoolText();
           this.matter.body.setVelocity(puck, { x: 0, y: 0 });

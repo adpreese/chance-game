@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, fallbackItems, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 const horseColors = [0xf97316, 0x38bdf8, 0xf472b6, 0x34d399, 0xfacc15];
 
@@ -20,6 +21,7 @@ class HorseRaceScene extends BaseGameScene {
     super('HorseRaceScene');
     this.horses = [];
     this.raceTimer = null;
+    this.sprintEvent = null;
     this.winnerName = '';
     this.finishX = 0;
   }
@@ -27,6 +29,7 @@ class HorseRaceScene extends BaseGameScene {
   create() {
     this.createBaseLayout('Horse Dash');
     this.resultText.setText('Race in progress...');
+    playSfx(this, 'horseRaceStart');
 
     const startX = 120;
     this.finishX = this.scale.width - 120;
@@ -118,6 +121,17 @@ class HorseRaceScene extends BaseGameScene {
         }
       },
     });
+
+    this.sprintEvent = this.time.addEvent({
+      delay: 1200,
+      loop: true,
+      callback: () => {
+        if (this.winnerName) {
+          return;
+        }
+        playSfx(this, 'horseRaceSprint');
+      },
+    });
   }
 
   finishRace() {
@@ -125,6 +139,11 @@ class HorseRaceScene extends BaseGameScene {
       this.raceTimer.remove();
       this.raceTimer = null;
     }
+    if (this.sprintEvent) {
+      this.sprintEvent.remove();
+      this.sprintEvent = null;
+    }
+    playSfx(this, 'horseRaceFinish');
     consumeItem(this.winnerName);
     this.setResult(`${this.winnerName} wins!`);
     this.updateItemPoolText();

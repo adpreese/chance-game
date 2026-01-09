@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 const createWheelTexture = (scene, key, items) => {
   const size = 320;
@@ -61,6 +62,18 @@ class WheelScene extends BaseGameScene {
 
     wheel.setAngularVelocity(6);
     wheel.setFrictionAir(0.02);
+    playSfx(this, 'wheelSpinStart');
+
+    const tickEvent = this.time.addEvent({
+      delay: 180,
+      loop: true,
+      callback: () => {
+        if (this.hasResult) {
+          return;
+        }
+        playSfx(this, 'wheelTick');
+      },
+    });
 
     const jitterEvent = this.time.addEvent({
       delay: 260,
@@ -73,11 +86,14 @@ class WheelScene extends BaseGameScene {
 
     this.time.delayedCall(4200, () => {
       jitterEvent.remove();
+      tickEvent.remove();
       const angle = Phaser.Math.Angle.Normalize(wheel.rotation + Math.PI / 2);
       const slice = (Math.PI * 2) / items.length;
       const index = Math.floor(angle / slice) % items.length;
       const choice = items[index];
+      playSfx(this, 'wheelTick');
       consumeItem(choice);
+      playSfx(this, 'wheelResult');
       this.setResult(choice);
       this.updateItemPoolText();
     });

@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { createTextButton } from '../utils/ui.js';
 import { getNextItem, getState } from '../utils/store.js';
 import { applySelectedShader } from '../utils/shader.js';
-import { registerSfx } from '../utils/audio.js';
+import { playSfx, registerSfx } from '../utils/audio.js';
 
 class BaseGameScene extends Phaser.Scene {
   constructor(key) {
@@ -25,6 +25,7 @@ class BaseGameScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5);
 
     createTextButton(this, 90, 30, 'Back to Hub', () => {
+      playSfx(this, 'uiNavigate');
       this.scene.start('HubScene');
     });
 

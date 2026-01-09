@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 const randomFishColors = () => {
   const hue = Math.random();
@@ -33,6 +34,7 @@ class FishingScene extends BaseGameScene {
     const hookTip = this.add.triangle(hookBody.position.x, hookBody.position.y + 8, 0, 0, 8, 6, 0, 12, 0xfef3c7, 1);
     const constraint = this.matter.add.worldConstraint(hookBody, 120, 0.02, { pointA: { x: anchor.x, y: anchor.y } });
     const line = this.add.line(0, 0, anchor.x, anchor.y, hookBody.position.x, hookBody.position.y, 0xffffff, 0.6).setOrigin(0, 0);
+    playSfx(this, 'fishingCast');
 
     // Animate the anchor position left and right
     this.tweens.add({
@@ -171,11 +173,13 @@ class FishingScene extends BaseGameScene {
       }, null);
 
       if (!targetFishEntry) {
+        playSfx(this, 'fishingMiss');
         return;
       }
 
       const targetFish = targetFishEntry.entry;
       targetFish.caught = true;
+      playSfx(this, 'fishingBite');
       this.matter.world.remove(targetFish.body);
       this.tweens.add({
         targets: targetFish.container,
@@ -184,12 +188,14 @@ class FishingScene extends BaseGameScene {
         scale: 1.3,
         duration: 600,
         ease: 'Back.easeIn',
+        onStart: () => playSfx(this, 'fishingReel'),
         onComplete: () => {
           if (this.hasResult) {
             return;
           }
           this.hasResult = true;
           consumeItem(targetFish.item);
+          playSfx(this, 'fishingCatch');
           this.setResult(targetFish.item);
           this.updateItemPoolText();
         },

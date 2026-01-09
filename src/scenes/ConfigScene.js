@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { getState, setItemsFromText, setNextGame, setRemoveOnSelect, setShader } from '../utils/store.js';
 import { createTextButton, createPanel } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
-import { registerSfx } from '../utils/audio.js';
+import { playSfx, registerSfx } from '../utils/audio.js';
 
 class ConfigScene extends Phaser.Scene {
   constructor() {
@@ -97,6 +97,7 @@ class ConfigScene extends Phaser.Scene {
         removeIndex = (removeIndex + 1) % removeOptions.length;
         this.currentRemoveOnSelect = removeOptions[removeIndex].value;
         removeButton.setText(removeOptions[removeIndex].label);
+        playSfx(this, 'uiModeChange');
       }
     );
 
@@ -135,6 +136,7 @@ class ConfigScene extends Phaser.Scene {
         gameIndex = (gameIndex + 1) % gameOptions.length;
         this.currentNextGame = gameOptions[gameIndex].value;
         gameButton.setText(gameOptions[gameIndex].label);
+        playSfx(this, 'uiModeChange');
       }
     );
 
@@ -176,6 +178,7 @@ class ConfigScene extends Phaser.Scene {
         shaderIndex = (shaderIndex + 1) % shaderOptions.length;
         this.currentShader = shaderOptions[shaderIndex].value;
         shaderButton.setText(shaderOptions[shaderIndex].label);
+        playSfx(this, 'uiModeChange');
       }
     );
 
@@ -193,10 +196,12 @@ class ConfigScene extends Phaser.Scene {
 
     createTextButton(this, this.scale.width / 2 - 100, yPos, 'Save', () => {
       saveConfig();
+      playSfx(this, 'uiSave');
     });
 
     createTextButton(this, this.scale.width / 2 + 100, yPos, 'Go to Hub', () => {
       saveConfig();
+      playSfx(this, 'uiNavigate');
       this.scene.start('HubScene');
     });
   }
