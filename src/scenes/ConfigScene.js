@@ -159,6 +159,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Watercolor', value: 'watercolor' },
       { label: 'Impressionist', value: 'impressionist' },
       { label: 'Sketch (Crosshatch)', value: 'sketch' },
+      { label: 'Film Noir', value: 'film-noir' },
     ];
     let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
     if (shaderIndex === -1) shaderIndex = 0;

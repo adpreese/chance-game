@@ -313,6 +313,50 @@ void main() {
 }
 `;
 
+const filmNoirFragmentShader = `
+#define SHADER_NAME FILM_NOIR_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  float lum = luma(baseColor.rgb);
+  vec3 noir = vec3(lum);
+  vec3 tint = mix(vec3(0.88, 0.9, 0.98), vec3(1.0, 0.95, 0.9), lum);
+  noir *= tint;
+
+  noir = pow(noir, vec3(0.85));
+  noir = smoothstep(0.08, 0.95, noir);
+
+  float vignette = smoothstep(0.9, 0.35, distance(uv, vec2(0.5)));
+  noir *= mix(vec3(0.6), vec3(1.05), vignette);
+
+  float grain = rand(uv * uResolution + uTime * 12.0) - 0.5;
+  noir += grain * 0.04;
+
+  float slats = step(0.6, fract((uv.y * 24.0) + sin(uv.x * 3.0) * 0.6));
+  noir *= mix(1.0, 0.72, slats * 0.4);
+
+  gl_FragColor = vec4(clamp(noir, 0.0, 1.0), baseColor.a);
+}
+`;
+
 class NeonPurplePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -449,6 +493,23 @@ class SketchPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   }
 }
 
+class FilmNoirPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: filmNoirFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
 const ensureShaderPipelines = (game) => {
   if (game.renderer.type !== Phaser.WEBGL) {
     return;
@@ -463,6 +524,7 @@ const ensureShaderPipelines = (game) => {
     { key: 'Watercolor', pipeline: WatercolorPostFX },
     { key: 'Impressionist', pipeline: ImpressionistPostFX },
     { key: 'Sketch', pipeline: SketchPostFX },
+    { key: 'FilmNoir', pipeline: FilmNoirPostFX },
   ];
 
   pipelines.forEach(({ key, pipeline }) => {
@@ -507,6 +569,9 @@ const applySelectedShader = (scene) => {
   } else if (shader === 'sketch') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('Sketch');
+  } else if (shader === 'film-noir') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('FilmNoir');
   } else {
     camera.resetPostPipeline();
   }
