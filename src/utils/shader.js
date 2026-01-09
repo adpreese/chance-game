@@ -110,6 +110,147 @@ void main() {
 }
 `;
 
+const celShadingFragmentShader = `
+#define SHADER_NAME CEL_SHADING_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  vec2 pixel = vec2(1.0) / uResolution;
+  float edgeX = luma(texture2D(uMainSampler, uv + vec2(pixel.x, 0.0)).rgb) -
+    luma(texture2D(uMainSampler, uv - vec2(pixel.x, 0.0)).rgb);
+  float edgeY = luma(texture2D(uMainSampler, uv + vec2(0.0, pixel.y)).rgb) -
+    luma(texture2D(uMainSampler, uv - vec2(0.0, pixel.y)).rgb);
+  float edge = smoothstep(0.05, 0.2, abs(edgeX) + abs(edgeY));
+
+  float levels = 4.0;
+  vec3 quantized = floor(baseColor.rgb * levels) / levels;
+  vec3 shaded = mix(quantized, quantized * 0.2, edge);
+
+  gl_FragColor = vec4(shaded, baseColor.a);
+}
+`;
+
+const halftoneFragmentShader = `
+#define SHADER_NAME HALFTONE_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  float angle = 0.4;
+  mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+  vec2 gridUv = rot * (uv * uResolution / 6.0);
+  vec2 cell = fract(gridUv) - 0.5;
+  float dist = length(cell);
+
+  float ink = 1.0 - luma(baseColor.rgb);
+  float dotRadius = mix(0.05, 0.45, ink);
+  float dotMask = smoothstep(dotRadius, dotRadius - 0.1, dist);
+
+  vec3 paper = vec3(1.0, 0.97, 0.9);
+  vec3 inkColor = mix(baseColor.rgb, vec3(0.05, 0.05, 0.08), 0.6);
+  vec3 halftone = mix(paper, inkColor, dotMask);
+
+  gl_FragColor = vec4(halftone, baseColor.a);
+}
+`;
+
+const watercolorFragmentShader = `
+#define SHADER_NAME WATERCOLOR_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  vec2 pixel = vec2(1.0) / uResolution;
+  vec3 blur =
+    texture2D(uMainSampler, uv + vec2(pixel.x, 0.0)).rgb +
+    texture2D(uMainSampler, uv - vec2(pixel.x, 0.0)).rgb +
+    texture2D(uMainSampler, uv + vec2(0.0, pixel.y)).rgb +
+    texture2D(uMainSampler, uv - vec2(0.0, pixel.y)).rgb;
+  blur = (blur + baseColor.rgb) / 5.0;
+
+  float grain = rand(uv * uResolution + uTime) * 0.08;
+  vec3 wash = mix(blur, vec3(0.95, 0.92, 0.85), 0.15);
+  vec3 watercolor = mix(baseColor.rgb, wash, 0.6) + grain;
+
+  gl_FragColor = vec4(watercolor, baseColor.a);
+}
+`;
+
+const impressionistFragmentShader = `
+#define SHADER_NAME IMPRESSIONIST_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  vec2 pixel = vec2(1.0) / uResolution;
+  float jitter = rand(uv * uResolution + uTime) * 2.0 - 1.0;
+  vec2 brushOffset = vec2(jitter * pixel.x * 2.0, sin(uTime + uv.y * 8.0) * pixel.y * 2.0);
+
+  vec3 sampleA = texture2D(uMainSampler, uv + brushOffset).rgb;
+  vec3 sampleB = texture2D(uMainSampler, uv - brushOffset * 0.5).rgb;
+  vec3 blend = mix(sampleA, sampleB, 0.5);
+
+  float levels = 5.0;
+  vec3 quantized = floor(blend * levels) / levels;
+  vec3 warmed = mix(quantized, vec3(1.0, 0.85, 0.65), 0.12);
+
+  gl_FragColor = vec4(mix(baseColor.rgb, warmed, 0.75), baseColor.a);
+}
+`;
+
 class NeonPurplePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -161,6 +302,74 @@ class TreeOfLifePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   }
 }
 
+class CelShadingPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: celShadingFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
+class HalftonePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: halftoneFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
+class WatercolorPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: watercolorFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
+class ImpressionistPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: impressionistFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
 const ensureShaderPipelines = (game) => {
   if (game.renderer.type !== Phaser.WEBGL) {
     return;
@@ -170,6 +379,10 @@ const ensureShaderPipelines = (game) => {
     { key: 'NeonPurple', pipeline: NeonPurplePostFX },
     { key: 'Solarpunk', pipeline: SolarpunkPostFX },
     { key: 'TreeOfLife', pipeline: TreeOfLifePostFX },
+    { key: 'CelShading', pipeline: CelShadingPostFX },
+    { key: 'Halftone', pipeline: HalftonePostFX },
+    { key: 'Watercolor', pipeline: WatercolorPostFX },
+    { key: 'Impressionist', pipeline: ImpressionistPostFX },
   ];
 
   pipelines.forEach(({ key, pipeline }) => {
@@ -199,6 +412,18 @@ const applySelectedShader = (scene) => {
   } else if (shader === 'tree-of-life') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('TreeOfLife');
+  } else if (shader === 'cel-shading') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('CelShading');
+  } else if (shader === 'halftone') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('Halftone');
+  } else if (shader === 'watercolor') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('Watercolor');
+  } else if (shader === 'impressionist') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('Impressionist');
   } else {
     camera.resetPostPipeline();
   }
