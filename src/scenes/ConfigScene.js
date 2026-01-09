@@ -156,6 +156,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Tree of Life', value: 'tree-of-life' },
       { label: 'Cel Shading', value: 'cel-shading' },
       { label: 'Comic Halftone', value: 'halftone' },
+      { label: 'Cross Hatch', value: 'cross-hatch' },
       { label: 'Watercolor', value: 'watercolor' },
       { label: 'Impressionist', value: 'impressionist' },
       { label: 'Sketch (Crosshatch)', value: 'sketch' },
