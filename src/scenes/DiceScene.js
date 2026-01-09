@@ -33,17 +33,16 @@ class DiceScene extends BaseGameScene {
       .setStrokeStyle(2, 0xf8fafc, 0.9);
     dice.add(topFace);
 
+    const labelFontSize = Math.round(faceSize * 0.22);
     const faceObjects = faces.map((labelText) => {
       const faceRect = this.add.rectangle(0, 0, faceSize, faceSize, 0x22c55e, 1).setStrokeStyle(3, 0xf8fafc, 0.8);
-      const faceLabel = this.add
-        .text(0, 0, labelText, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '20px',
-          color: '#0f172a',
-          align: 'center',
-          wordWrap: { width: faceSize - 16 },
-        })
-        .setOrigin(0.5);
+      const faceLabel = this.createItemLabel(0, 0, labelText, {
+        fontSize: `${labelFontSize}px`,
+        color: '#0f172a',
+        stroke: '#f8fafc',
+        strokeThickness: 3,
+        wordWrap: { width: faceSize - 16 },
+      });
       const faceContainer = this.add.container(0, 0, [faceRect, faceLabel]);
       dice.add(faceContainer);
       return { faceContainer, faceRect, faceLabel };

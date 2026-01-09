@@ -91,13 +91,13 @@ class FishingScene extends BaseGameScene {
       });
       const fishBody = this.add.ellipse(0, 0, 22, 12, 0xf472b6, 0.9);
       const fishTail = this.add.triangle(-12, 0, 0, 0, -8, 6, -8, -6, 0xf9a8d4, 0.9);
-      const fishText = this.add
-        .text(0, -16, item, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '10px',
-          color: '#e2e8f0',
-        })
-        .setOrigin(0.5);
+      const fishText = this.createItemLabel(0, -16, item, {
+        fontSize: '11px',
+        color: '#f8fafc',
+        stroke: '#0f172a',
+        strokeThickness: 2,
+        wordWrap: { width: 80 },
+      });
       const container = this.add.container(x, y, [fishTail, fishBody, fishText]);
       return { body, container, item, caught: false };
     });

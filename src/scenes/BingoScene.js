@@ -87,13 +87,13 @@ class BingoScene extends BaseGameScene {
         label: `ball-${item}`,
       });
       const ball = this.add.circle(x, body.position.y, 14, 0x38bdf8, 0.9);
-      const text = this.add
-        .text(x, body.position.y, item, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '9px',
-          color: '#0f172a',
-        })
-        .setOrigin(0.5);
+      const text = this.createItemLabel(x, body.position.y, item, {
+        fontSize: '10px',
+        color: '#0f172a',
+        stroke: '#f8fafc',
+        strokeThickness: 2,
+        wordWrap: { width: 40 },
+      });
       return { body, ball, text, item };
     });
 

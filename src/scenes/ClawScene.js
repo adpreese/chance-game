@@ -23,13 +23,13 @@ class ClawScene extends BaseGameScene {
         label: `prize-${item}`,
       });
       const ball = this.add.circle(x, y, 18, 0x38bdf8, 0.9);
-      const text = this.add
-        .text(x, y, item, {
-          fontFamily: 'Inter, system-ui, sans-serif',
-          fontSize: '10px',
-          color: '#0f172a',
-        })
-        .setOrigin(0.5);
+      const text = this.createItemLabel(x, y, item, {
+        fontSize: '11px',
+        color: '#0f172a',
+        stroke: '#f8fafc',
+        strokeThickness: 2,
+        wordWrap: { width: 60 },
+      });
       return { body, ball, text, item };
     });
 
