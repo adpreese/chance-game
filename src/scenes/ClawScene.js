@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 class ClawScene extends BaseGameScene {
   constructor() {
@@ -101,7 +102,9 @@ class ClawScene extends BaseGameScene {
             return;
           }
           this.hasResult = true;
+          playSfx(this, 'clawRelease');
           consumeItem(prize.item);
+          playSfx(this, 'clawResult');
           this.setResult(prize.item);
           this.updateItemPoolText();
         },
@@ -112,6 +115,7 @@ class ClawScene extends BaseGameScene {
       if (this.hasResult || this.isDropping) {
         return;
       }
+      playSfx(this, 'clawDrop');
       this.isDropping = true;
       instructionText.setVisible(false);
       idleTween.stop();
@@ -158,6 +162,7 @@ class ClawScene extends BaseGameScene {
           if (prize && this.isDropping && !activeConstraint) {
             clawBody.isSensor = false;
             activeConstraint = this.matter.add.constraint(clawBody, prize.body, 0, 0.9);
+            playSfx(this, 'clawGrab');
             liftClaw(prize);
           }
         }

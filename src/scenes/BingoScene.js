@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import BaseGameScene from './BaseGameScene.js';
 import { consumeItem, getItems } from '../utils/store.js';
+import { playSfx } from '../utils/audio.js';
 
 const randomBallColor = () => Phaser.Display.Color.HSLToColor(Math.random(), 0.7, 0.6).color;
 
@@ -135,6 +136,7 @@ class BingoScene extends BaseGameScene {
     this.time.delayedCall(3000, () => {
       spinState.active = false;
       this.matter.world.setGravity(0, 0.9);
+      playSfx(this, 'bingoDraw');
       this.tweens.add({
         targets: latchVisual,
         y: latchVisual.y + 90,
@@ -160,7 +162,9 @@ class BingoScene extends BaseGameScene {
           const ball = balls.find((entry) => entry.body === other);
           if (ball) {
             this.hasResult = true;
+            playSfx(this, 'bingoMatch');
             consumeItem(ball.item);
+            playSfx(this, 'bingoComplete');
             this.setResult(ball.item);
             this.updateItemPoolText();
           }

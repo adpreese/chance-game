@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { getState } from '../utils/store.js';
 import { createTextButton } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
-import { registerSfx } from '../utils/audio.js';
+import { playSfx, registerSfx } from '../utils/audio.js';
 
 const gameCards = [
   { key: 'PlinkoScene', label: 'Plinko' },
@@ -90,6 +90,7 @@ class HubScene extends Phaser.Scene {
       .setOrigin(0.5, 0.5);
 
     createTextButton(this, this.scale.width - 100, 40, 'Configure', () => {
+      playSfx(this, 'uiNavigate');
       this.scene.start('ConfigScene');
     });
 
@@ -110,6 +111,7 @@ class HubScene extends Phaser.Scene {
       const hitZone = this.add.zone(x + cardWidth / 2, y + cardHeight / 2, cardWidth, cardHeight);
       hitZone.setInteractive({ useHandCursor: true });
       hitZone.on('pointerdown', () => {
+        playSfx(this, 'uiNavigate');
         this.scene.start(card.key);
       });
 
@@ -141,11 +143,13 @@ class HubScene extends Phaser.Scene {
 
     createTextButton(this, this.scale.width / 2, this.scale.height - 60, 'Play Configured Game', () => {
       const target = nextGame === 'random' ? Phaser.Utils.Array.GetRandom(gameCards).key : nextGame;
+      playSfx(this, 'uiNavigate');
       this.scene.start(target);
     });
 
     createTextButton(this, this.scale.width / 2, this.scale.height - 25, 'Play Random Game', () => {
       const target = Phaser.Utils.Array.GetRandom(gameCards).key;
+      playSfx(this, 'uiNavigate');
       this.scene.start(target);
     });
   }
