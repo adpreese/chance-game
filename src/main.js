@@ -7,6 +7,7 @@ import DiceScene from './scenes/DiceScene.js';
 import FishingScene from './scenes/FishingScene.js';
 import ClawScene from './scenes/ClawScene.js';
 import BingoScene from './scenes/BingoScene.js';
+import HorseRaceScene from './scenes/HorseRaceScene.js';
 import { applyShaderToScene, registerPipelines } from './utils/shaders.js';
 import { getState } from './utils/store.js';
 
@@ -25,7 +26,7 @@ const config = {
       gravity: { y: 1.1 },
     },
   },
-  scene: [ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene],
+  scene: [ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene, HorseRaceScene],
 };
 
 const game = new Phaser.Game(config);
