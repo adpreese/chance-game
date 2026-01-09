@@ -10,12 +10,37 @@ class BingoScene extends BaseGameScene {
   create() {
     this.createBaseLayout('Bingo Ball Drop');
 
+    const { Bodies, Body } = Phaser.Physics.Matter.Matter;
     const centerX = this.scale.width / 2;
     const centerY = this.scale.height / 2 - 10;
     const radius = 160;
 
     const frame = this.add.circle(centerX, centerY, radius + 24, 0x0f172a, 0.4);
     frame.setStrokeStyle(2, 0xffffff, 0.2);
+
+    const segmentCount = 28;
+    const wallThickness = 12;
+    const wallLength = (2 * Math.PI * radius) / segmentCount + 4;
+    const containerSegments = [];
+
+    for (let i = 0; i < segmentCount; i += 1) {
+      const angle = (Math.PI * 2 * i) / segmentCount;
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      const segment = Bodies.rectangle(x, y, wallLength, wallThickness, {
+        restitution: 0.95,
+        friction: 0.02,
+      });
+      Body.rotate(segment, angle + Math.PI / 2);
+      containerSegments.push(segment);
+    }
+
+    const containerBody = Body.create({
+      parts: containerSegments,
+      isStatic: true,
+      label: 'bingo-container',
+    });
+    this.matter.world.add(containerBody);
 
     for (let i = 0; i < 12; i += 1) {
       const angle = Phaser.Math.DegToRad((360 / 12) * i);
