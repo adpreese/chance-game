@@ -173,9 +173,9 @@ void main() {
   float dotRadius = mix(0.05, 0.45, ink);
   float dotMask = smoothstep(dotRadius, dotRadius - 0.1, dist);
 
-  vec3 paper = vec3(1.0, 0.97, 0.9);
-  vec3 inkColor = mix(baseColor.rgb, vec3(0.05, 0.05, 0.08), 0.6);
-  vec3 halftone = mix(paper, inkColor, dotMask);
+  vec3 paper = vec3(0.98, 0.96, 0.92);
+  vec3 inkColor = mix(baseColor.rgb, vec3(0.05, 0.05, 0.08), 0.35);
+  vec3 halftone = mix(baseColor.rgb, mix(paper, inkColor, dotMask), 0.5);
 
   gl_FragColor = vec4(halftone, baseColor.a);
 }
