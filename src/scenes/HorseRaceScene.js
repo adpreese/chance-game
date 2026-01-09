@@ -30,31 +30,41 @@ class HorseRaceScene extends BaseGameScene {
 
     const startX = 120;
     this.finishX = this.scale.width - 120;
-    const laneCount = 5;
-    const laneHeight = 80;
-    const topY = 140;
+    const trackTop = 110;
+    const maxTrackHeight = this.scale.height - 90 - trackTop;
+
+    const items = getItems();
+    const horseNames = items.length ? items : fallbackItems;
+    const laneCount = Math.max(1, horseNames.length);
+    const trackPadding = Math.min(30, Math.max(12, maxTrackHeight * 0.08));
+    const availableHeight = Math.max(0, maxTrackHeight - trackPadding * 2);
+    const laneHeight = Math.min(80, availableHeight / laneCount);
+    const trackHeight = laneCount * laneHeight + trackPadding * 2;
+    const laneStartY = trackTop + trackPadding;
+    const finishLineTop = trackTop + 10;
+    const finishLineBottom = trackTop + trackHeight - 10;
 
     const track = this.add.graphics();
-    track.fillStyle(0x111827, 0.6).fillRoundedRect(80, 110, this.scale.width - 160, laneCount * laneHeight + 30, 18);
-    track.lineStyle(2, 0xffffff, 0.15).strokeRoundedRect(80, 110, this.scale.width - 160, laneCount * laneHeight + 30, 18);
-    track.lineStyle(3, 0xffffff, 0.4).lineBetween(this.finishX, 120, this.finishX, 120 + laneCount * laneHeight + 10);
+    track.fillStyle(0x111827, 0.6).fillRoundedRect(80, trackTop, this.scale.width - 160, trackHeight, 18);
+    track.lineStyle(2, 0xffffff, 0.15).strokeRoundedRect(80, trackTop, this.scale.width - 160, trackHeight, 18);
+    track.lineStyle(3, 0xffffff, 0.4).lineBetween(this.finishX, finishLineTop, this.finishX, finishLineBottom);
 
     this.add
-      .text(this.finishX + 10, 120, 'Finish', {
+      .text(this.finishX + 10, finishLineTop, 'Finish', {
         fontFamily: 'Inter, system-ui, sans-serif',
         fontSize: '12px',
         color: '#f8fafc',
       })
       .setOrigin(0, 0.5);
-
-    const items = getItems();
-    const horseNames = items.length ? items : fallbackItems;
-    const lanes = Array.from({ length: laneCount }, (_, index) => horseNames[index % horseNames.length]);
+    const lanes = horseNames;
+    const labelFontSize = Math.max(10, Math.min(14, Math.round(laneHeight * 0.35)));
+    const horseScale = Math.min(1, Math.max(0.5, laneHeight / 50));
 
     this.horses = lanes.map((name, index) => {
-      const laneY = topY + index * laneHeight + 30;
+      const laneY = laneStartY + index * laneHeight;
       const horse = buildHorse(this, horseColors[index % horseColors.length]);
       horse.setPosition(startX, laneY);
+      horse.setScale(horseScale);
       horse.name = name;
       horse.minSpeed = 0.6;
       horse.maxSpeed = 2.1;
@@ -66,7 +76,7 @@ class HorseRaceScene extends BaseGameScene {
       horse.targetShiftChance = 0.16;
 
       const laneLabel = this.createItemLabel(startX - 30, laneY, name, {
-        fontSize: '14px',
+        fontSize: `${labelFontSize}px`,
         color: '#f8fafc',
         stroke: '#0f172a',
         strokeThickness: 3,
