@@ -158,6 +158,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Comic Halftone', value: 'halftone' },
       { label: 'Watercolor', value: 'watercolor' },
       { label: 'Impressionist', value: 'impressionist' },
+      { label: 'Sketch (Crosshatch)', value: 'sketch' },
     ];
     let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
     if (shaderIndex === -1) shaderIndex = 0;

@@ -251,6 +251,68 @@ void main() {
 }
 `;
 
+const sketchFragmentShader = `
+#define SHADER_NAME SKETCH_FS
+
+precision mediump float;
+
+uniform sampler2D uMainSampler;
+uniform float uTime;
+uniform vec2 uResolution;
+
+varying vec2 outTexCoord;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float luma(vec3 color) {
+  return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+float hatch(vec2 uv, float angle, float scale, float thickness) {
+  mat2 rot = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+  vec2 rotated = rot * (uv * uResolution / scale);
+  float line = abs(fract(rotated.y) - 0.5);
+  return smoothstep(thickness, thickness * 0.4, line);
+}
+
+void main() {
+  vec2 uv = outTexCoord;
+  vec4 baseColor = texture2D(uMainSampler, uv);
+
+  vec2 pixel = vec2(1.0) / uResolution;
+  float jitterSeed = rand(uv * uResolution + uTime) * 2.0 - 1.0;
+  vec2 jitter = jitterSeed * pixel * 0.6;
+
+  float edgeX = luma(texture2D(uMainSampler, uv + vec2(pixel.x, 0.0) + jitter).rgb) -
+    luma(texture2D(uMainSampler, uv - vec2(pixel.x, 0.0) - jitter).rgb);
+  float edgeY = luma(texture2D(uMainSampler, uv + vec2(0.0, pixel.y) + jitter).rgb) -
+    luma(texture2D(uMainSampler, uv - vec2(0.0, pixel.y) - jitter).rgb);
+  float edge = smoothstep(0.04, 0.18, abs(edgeX) + abs(edgeY));
+
+  float ink = 1.0 - luma(baseColor.rgb);
+  float hatchA = hatch(uv, 0.0, 8.0, 0.22);
+  float hatchB = hatch(uv, 0.785398, 7.0, 0.2);
+  float hatchC = hatch(uv, 1.570796, 6.0, 0.18);
+  float hatchD = hatch(uv, 2.356194, 6.5, 0.18);
+
+  float layer1 = step(0.2, ink) * hatchA;
+  float layer2 = step(0.4, ink) * hatchB;
+  float layer3 = step(0.6, ink) * hatchC;
+  float layer4 = step(0.75, ink) * hatchD;
+  float hatchInk = max(max(layer1, layer2), max(layer3, layer4));
+
+  vec3 paper = vec3(0.98, 0.97, 0.94);
+  vec3 lineColor = vec3(0.05, 0.05, 0.06);
+  vec3 hatched = mix(paper, lineColor, hatchInk);
+  vec3 edged = mix(baseColor.rgb, lineColor, edge);
+  vec3 shaded = mix(edged, hatched, 0.55);
+
+  gl_FragColor = vec4(shaded, baseColor.a);
+}
+`;
+
 class NeonPurplePostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
   constructor(game) {
     super({
@@ -370,6 +432,23 @@ class ImpressionistPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline
   }
 }
 
+class SketchPostFX extends Phaser.Renderer.WebGL.Pipelines.PostFXPipeline {
+  constructor(game) {
+    super({
+      game,
+      fragShader: sketchFragmentShader,
+    });
+
+    this._time = 0;
+  }
+
+  onPreRender() {
+    this._time = this.game.loop.time / 1000;
+    this.set1f('uTime', this._time);
+    this.set2f('uResolution', this.renderer.width, this.renderer.height);
+  }
+}
+
 const ensureShaderPipelines = (game) => {
   if (game.renderer.type !== Phaser.WEBGL) {
     return;
@@ -383,6 +462,7 @@ const ensureShaderPipelines = (game) => {
     { key: 'Halftone', pipeline: HalftonePostFX },
     { key: 'Watercolor', pipeline: WatercolorPostFX },
     { key: 'Impressionist', pipeline: ImpressionistPostFX },
+    { key: 'Sketch', pipeline: SketchPostFX },
   ];
 
   pipelines.forEach(({ key, pipeline }) => {
@@ -424,6 +504,9 @@ const applySelectedShader = (scene) => {
   } else if (shader === 'impressionist') {
     ensureShaderPipelines(scene.game);
     camera.setPostPipeline('Impressionist');
+  } else if (shader === 'sketch') {
+    ensureShaderPipelines(scene.game);
+    camera.setPostPipeline('Sketch');
   } else {
     camera.resetPostPipeline();
   }
