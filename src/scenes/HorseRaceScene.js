@@ -51,20 +51,19 @@ class HorseRaceScene extends BaseGameScene {
     const horseNames = items.length ? items : fallbackItems;
     const lanes = Array.from({ length: laneCount }, (_, index) => horseNames[index % horseNames.length]);
 
-    this.winnerName = Phaser.Utils.Array.GetRandom(lanes);
-
     this.horses = lanes.map((name, index) => {
       const laneY = topY + index * laneHeight + 30;
       const horse = buildHorse(this, horseColors[index % horseColors.length]);
       horse.setPosition(startX, laneY);
       horse.name = name;
-      const isWinner = name === this.winnerName;
-      horse.minSpeed = isWinner ? 1.8 : 1.2;
-      horse.maxSpeed = isWinner ? 3.4 : 2.7;
+      horse.minSpeed = 0.6;
+      horse.maxSpeed = 2.1;
       horse.speed = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
       horse.speedTarget = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
-      horse.speedJitter = isWinner ? 0.12 : 0.16;
-      horse.targetShiftChance = 0.08;
+      horse.speedJitter = 0.24;
+      horse.acceleration = Phaser.Math.FloatBetween(-0.05, 0.08);
+      horse.accelJitter = 0.03;
+      horse.targetShiftChance = 0.16;
 
       this.add
         .text(startX - 30, laneY, name, {
@@ -87,17 +86,24 @@ class HorseRaceScene extends BaseGameScene {
         this.horses.forEach((horse) => {
           if (Phaser.Math.FloatBetween(0, 1) < horse.targetShiftChance) {
             horse.speedTarget = Phaser.Math.FloatBetween(horse.minSpeed, horse.maxSpeed);
+            horse.acceleration = Phaser.Math.FloatBetween(-0.08, 0.12);
           }
-          horse.speed += (horse.speedTarget - horse.speed) * 0.08;
+          horse.speed += (horse.speedTarget - horse.speed) * 0.05;
+          horse.acceleration += Phaser.Math.FloatBetween(-horse.accelJitter, horse.accelJitter);
+          horse.acceleration = Phaser.Math.Clamp(horse.acceleration, -0.1, 0.12);
+          horse.speed += horse.acceleration;
           horse.speed += Phaser.Math.FloatBetween(-horse.speedJitter, horse.speedJitter);
           horse.speed = Phaser.Math.Clamp(horse.speed, horse.minSpeed, horse.maxSpeed);
           horse.x += horse.speed;
         });
 
-        const winner = this.horses.find((horse) => horse.name === this.winnerName);
-        if (winner && winner.x >= this.finishX) {
-          winner.x = this.finishX;
-          this.finishRace();
+        if (!this.winnerName) {
+          const winner = this.horses.find((horse) => horse.x >= this.finishX);
+          if (winner) {
+            winner.x = this.finishX;
+            this.winnerName = winner.name;
+            this.finishRace();
+          }
         }
       },
     });
