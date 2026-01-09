@@ -97,7 +97,7 @@ class BaseGameScene extends Phaser.Scene {
 
   updateItemPoolText() {
     const { items, removeOnSelect } = getState();
-    this.itemPoolText.setText(`Items: ${items.length} | Remove: ${removeOnSelect ? 'On' : 'Off'}`);
+    this.itemPoolText.setText(``);
   }
 
   pickItem() {

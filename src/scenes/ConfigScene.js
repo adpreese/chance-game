@@ -158,12 +158,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Neon', value: 'neon' },
       { label: 'Solarpunk', value: 'solarpunk' },
       { label: 'Tree of Life', value: 'tree-of-life' },
-      { label: 'Cel Shading', value: 'cel-shading' },
       { label: 'Comic Halftone', value: 'halftone' },
-      { label: 'Cross Hatch', value: 'cross-hatch' },
-      { label: 'Watercolor', value: 'watercolor' },
-      { label: 'Impressionist', value: 'impressionist' },
-      { label: 'Sketch (Crosshatch)', value: 'sketch' },
       { label: 'Film Noir', value: 'film-noir' },
     ];
     let shaderIndex = shaderOptions.findIndex(opt => opt.value === shader);
