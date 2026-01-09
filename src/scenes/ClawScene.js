@@ -9,7 +9,7 @@ class ClawScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Claw Grab');
+    this.createBaseLayout('Claw Grab Frenzy!');
 
     const platform = this.add.rectangle(this.scale.width / 2, this.scale.height - 100, 520, 24, 0x1f2937, 0.9);
     platform.setStrokeStyle(2, 0x94a3b8, 0.6);

@@ -11,7 +11,7 @@ class BingoScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Bingo Ball Drop');
+    this.createBaseLayout('Bingo Ball Blast!');
 
     const { Bodies, Body } = Phaser.Physics.Matter.Matter;
     const centerX = this.scale.width / 2;

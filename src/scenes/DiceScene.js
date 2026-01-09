@@ -9,7 +9,7 @@ class DiceScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Dice Roll');
+    this.createBaseLayout('Dice Roll Showdown!');
 
     const rawItems = getItems();
     const faces = rawItems.length ? rawItems : ['1', '2', '3', '4', '5', '6'];

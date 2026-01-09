@@ -16,7 +16,7 @@ class FishingScene extends BaseGameScene {
   }
 
   create() {
-    this.createBaseLayout('Fishing Pond');
+    this.createBaseLayout('Fishing Pond Treasure Hunt!');
 
     // Disable gravity for underwater physics
     this.matter.world.setGravity(0, 0);

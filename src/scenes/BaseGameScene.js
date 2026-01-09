@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { createTextButton } from '../utils/ui.js';
 import { getNextItem, getState } from '../utils/store.js';
-import { applySelectedShader } from '../utils/shader.js';
+import { applySelectedShader, applyTextBoxShader } from '../utils/shader.js';
 import { playSfx, registerSfx } from '../utils/audio.js';
 
 class BaseGameScene extends Phaser.Scene {
@@ -18,9 +18,18 @@ class BaseGameScene extends Phaser.Scene {
 
     this.add
       .text(this.scale.width / 2, 28, title, {
-        fontFamily: 'Inter, system-ui, sans-serif',
-        fontSize: '24px',
-        color: '#f5f5f5',
+        fontFamily: '"Bangers", "Impact", "Trebuchet MS", sans-serif',
+        fontSize: '30px',
+        color: '#fff1c2',
+        stroke: '#3b0d0d',
+        strokeThickness: 4,
+        shadow: {
+          offsetX: 0,
+          offsetY: 3,
+          color: 'rgba(255, 136, 0, 0.6)',
+          blur: 8,
+          fill: true,
+        },
       })
       .setOrigin(0.5, 0.5);
 
@@ -28,6 +37,12 @@ class BaseGameScene extends Phaser.Scene {
       playSfx(this, 'uiNavigate');
       this.scene.start('HubScene');
     });
+
+    this.resultPanel = this.add
+      .rectangle(this.scale.width / 2, this.scale.height - 40, 360, 54, 0x11172a, 0.72)
+      .setOrigin(0.5, 0.5);
+    this.resultPanel.setStrokeStyle(2, 0xffd07a, 0.6);
+    applyTextBoxShader(this, this.resultPanel, 'NeonPurple');
 
     this.resultText = this.add
       .text(this.scale.width / 2, this.scale.height - 40, 'Result pending...', {
@@ -45,7 +60,8 @@ class BaseGameScene extends Phaser.Scene {
           fill: true,
         },
       })
-      .setOrigin(0.5, 0.5);
+      .setOrigin(0.5, 0.5)
+      .setDepth(1);
     this.resultText.setResolution(2);
 
     this.itemPoolText = this.add
