@@ -20,7 +20,7 @@ class FishingScene extends BaseGameScene {
       label: 'hook',
     });
     const hookVisual = this.add.circle(hookBody.position.x, hookBody.position.y, 12, 0xfbbf24, 1);
-    this.matter.add.constraint(hookBody, { x: anchor.x, y: anchor.y }, 120, 0.02);
+    this.matter.add.worldConstraint(hookBody, 120, 0.02, { pointA: { x: anchor.x, y: anchor.y } });
     this.add.line(0, 0, anchor.x, anchor.y, hookBody.position.x, hookBody.position.y, 0xffffff, 0.6).setOrigin(0, 0);
 
     const fishItems = getItems().slice(0, 6);
