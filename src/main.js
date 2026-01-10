@@ -17,6 +17,10 @@ const config = {
   parent: 'app',
   width: 960,
   height: 640,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   backgroundColor: '#0b1020',
   dom: {
     createContainer: true,
@@ -31,3 +35,19 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+
+const resizeGame = () => {
+  const { innerWidth, innerHeight } = window;
+  const parent = document.getElementById('app');
+
+  if (parent) {
+    parent.style.width = `${innerWidth}px`;
+    parent.style.height = `${innerHeight}px`;
+  }
+
+  game.scale.resize(innerWidth, innerHeight);
+};
+
+window.addEventListener('resize', resizeGame);
+window.addEventListener('orientationchange', resizeGame);
+resizeGame();
