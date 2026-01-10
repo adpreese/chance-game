@@ -8,7 +8,6 @@ const TILE_SIZE = 44;
 const TILE_GAP = 6;
 const MOVE_INTERVAL = 400;
 const COUNTDOWN_STEP = 500;
-const PHASE_ONE_RINGS = 2;
 const PHASE_TWO_START = 4000;
 
 const creaturePalette = [0xf472b6, 0x38bdf8, 0xfacc15, 0x34d399, 0xa78bfa, 0xfb923c, 0x22d3ee, 0xf87171];
@@ -278,32 +277,20 @@ class SurvivalScene extends BaseGameScene {
   }
 
   startPhaseOne() {
-    let ringIndex = 0;
-    const collapseRing = (index) => {
-      const tilesToCollapse = [];
-      for (let row = index; row < GRID_SIZE - index; row += 1) {
-        for (let col = index; col < GRID_SIZE - index; col += 1) {
-          const isEdge = row === index || col === index || row === GRID_SIZE - index - 1 || col === GRID_SIZE - index - 1;
-          if (isEdge) {
-            const tile = this.tiles[row][col];
-            if (tile && tile.state === 'solid') {
-              tilesToCollapse.push(tile);
-            }
-          }
-        }
+    const scheduleNext = () => {
+      if (!this.gameActive) {
+        return;
       }
-      tilesToCollapse.forEach((tile) => this.flashAndCollapse(tile, 0xfacc15, 250));
+      const remaining = this.getRemainingTiles().filter((tile) => tile.state === 'solid');
+      if (!remaining.length) {
+        return;
+      }
+      const nextTile = Phaser.Utils.Array.GetRandom(remaining);
+      this.flashAndCollapse(nextTile, 0xfacc15, 250);
+      this.phaseOneEvent = this.time.delayedCall(Phaser.Math.Between(300, 500), scheduleNext);
     };
 
-    collapseRing(ringIndex);
-    this.phaseOneEvent = this.time.addEvent({
-      delay: 1000,
-      repeat: PHASE_ONE_RINGS - 1,
-      callback: () => {
-        ringIndex += 1;
-        collapseRing(ringIndex);
-      },
-    });
+    scheduleNext();
   }
 
   startPhaseTwo() {
