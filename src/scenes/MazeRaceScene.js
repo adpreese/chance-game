@@ -73,6 +73,21 @@ const carveMaze = (grid) => {
     nextCell.visited = true;
     stack.push(nextCell);
   }
+
+  const extraOpenChance = 0.35;
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < cols; x += 1) {
+      const cell = grid[y][x];
+      if (x < cols - 1 && cell.walls.right && Phaser.Math.FloatBetween(0, 1) < extraOpenChance) {
+        cell.walls.right = false;
+        grid[y][x + 1].walls.left = false;
+      }
+      if (y < rows - 1 && cell.walls.bottom && Phaser.Math.FloatBetween(0, 1) < extraOpenChance) {
+        cell.walls.bottom = false;
+        grid[y + 1][x].walls.top = false;
+      }
+    }
+  }
 };
 
 class MazeRaceScene extends BaseGameScene {
