@@ -74,7 +74,7 @@ const carveMaze = (grid) => {
     stack.push(nextCell);
   }
 
-  const extraOpenChance = 0.35;
+  const extraOpenChance = 0.12;
   for (let y = 0; y < rows; y += 1) {
     for (let x = 0; x < cols; x += 1) {
       const cell = grid[y][x];
@@ -110,12 +110,15 @@ const getOpenNeighbors = (grid, cell) => {
   return neighbors;
 };
 
-const countDistinctPaths = (grid, start, goal, limit = 3) => {
+const countDistinctPaths = (grid, start, goal, limit = 3, maxDepth = 100) => {
   let paths = 0;
   const visited = new Set();
+  let operations = 0;
+  const maxOperations = 1000;
 
-  const walk = (cell) => {
-    if (paths >= limit) {
+  const walk = (cell, depth = 0) => {
+    operations += 1;
+    if (operations > maxOperations || paths >= limit || depth > maxDepth) {
       return;
     }
     if (cell.x === goal.x && cell.y === goal.y) {
@@ -128,7 +131,7 @@ const countDistinctPaths = (grid, start, goal, limit = 3) => {
     neighbors.forEach((neighbor) => {
       const neighborKey = `${neighbor.x},${neighbor.y}`;
       if (!visited.has(neighborKey)) {
-        walk(neighbor);
+        walk(neighbor, depth + 1);
       }
     });
     visited.delete(key);
@@ -149,26 +152,41 @@ const ensureMultiplePaths = (grid, minPaths = 3) => {
     { dx: 0, dy: 1, wall: 'bottom', opposite: 'top' },
     { dx: -1, dy: 0, wall: 'left', opposite: 'right' },
   ];
-  const maxAttempts = rows * cols * 8;
+  const maxAttempts = Math.min(rows * cols * 2, 50);
   let attempts = 0;
+  let pathCheckAttempts = 0;
+  const maxPathChecks = 5;
 
-  while (countDistinctPaths(grid, start, goal, minPaths) < minPaths && attempts < maxAttempts) {
-    attempts += 1;
-    const cell = grid[Phaser.Math.Between(0, rows - 1)][Phaser.Math.Between(0, cols - 1)];
-    const options = directions.filter((dir) => {
-      const nextX = cell.x + dir.dx;
-      const nextY = cell.y + dir.dy;
-      if (nextX < 0 || nextX >= cols || nextY < 0 || nextY >= rows) {
-        return false;
-      }
-      return cell.walls[dir.wall];
-    });
-    if (!options.length) {
-      continue;
+  while (attempts < maxAttempts) {
+    pathCheckAttempts += 1;
+    if (pathCheckAttempts > maxPathChecks) {
+      break;
     }
-    const pick = Phaser.Utils.Array.GetRandom(options);
-    cell.walls[pick.wall] = false;
-    grid[cell.y + pick.dy][cell.x + pick.dx].walls[pick.opposite] = false;
+
+    const pathCount = countDistinctPaths(grid, start, goal, minPaths);
+    if (pathCount >= minPaths) {
+      break;
+    }
+
+    pathCheckAttempts = 0;
+    for (let i = 0; i < 10 && attempts < maxAttempts; i += 1) {
+      attempts += 1;
+      const cell = grid[Phaser.Math.Between(0, rows - 1)][Phaser.Math.Between(0, cols - 1)];
+      const options = directions.filter((dir) => {
+        const nextX = cell.x + dir.dx;
+        const nextY = cell.y + dir.dy;
+        if (nextX < 0 || nextX >= cols || nextY < 0 || nextY >= rows) {
+          return false;
+        }
+        return cell.walls[dir.wall];
+      });
+      if (!options.length) {
+        continue;
+      }
+      const pick = Phaser.Utils.Array.GetRandom(options);
+      cell.walls[pick.wall] = false;
+      grid[cell.y + pick.dy][cell.x + pick.dx].walls[pick.opposite] = false;
+    }
   }
 };
 
@@ -285,16 +303,7 @@ class MazeRaceScene extends BaseGameScene {
       creature.lastDirection = { dx: 0, dy: 0 };
       creature.memory = [];
       creature.visited = new Set([`${startPos.x},${startPos.y}`]);
-      this.createItemLabel(baseX - 36, baseY - 34 - index * 18, name, {
-        fontSize: '12px',
-        color: '#f8fafc',
-        stroke: '#0f172a',
-        strokeThickness: 4,
-        backgroundColor: 'rgba(15, 23, 42, 0.85)',
-        padding: { left: 6, right: 6, top: 3, bottom: 3 },
-      })
-        .setOrigin(1, 0.5)
-        .setDepth(5);
+      
       return creature;
     });
 
