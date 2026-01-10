@@ -220,22 +220,32 @@ class MazeRaceScene extends BaseGameScene {
     const weighted = neighbors.map((neighbor) => {
       const key = `${neighbor.x},${neighbor.y}`;
       const nextDistance = this.getDistance(neighbor, this.goal);
-      let weight = 0;
-      weight += nextDistance < currentDistance ? 0.55 : 0.1;
-      weight += creature.visited.has(key) ? 0.15 : 0.3;
+      let weight = 1 / (nextDistance + 1);
+
+      if (nextDistance > currentDistance) {
+        weight *= 0.55;
+      }
+
+      weight *= creature.visited.has(key) ? 0.5 : 2.4;
 
       if (neighbor.dx === creature.lastDirection.dx && neighbor.dy === creature.lastDirection.dy) {
-        weight += 0.1;
+        weight *= 1.15;
       }
 
       if (creature.memory.includes(key) && neighbors.length > 1) {
-        weight *= 0.25;
+        weight *= 0.15;
       }
 
       return { neighbor, weight };
     });
 
-    const choice = this.pickWeighted(weighted);
+    const hasUnvisited = weighted.some(({ neighbor }) => !creature.visited.has(`${neighbor.x},${neighbor.y}`));
+    let choice = null;
+    if (hasUnvisited && Phaser.Math.FloatBetween(0, 1) < 0.6) {
+      choice = weighted.reduce((best, option) => (option.weight > best.weight ? option : best), weighted[0]);
+    } else {
+      choice = this.pickWeighted(weighted);
+    }
     if (!choice) {
       return;
     }
