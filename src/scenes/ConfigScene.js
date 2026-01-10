@@ -123,6 +123,7 @@ class ConfigScene extends Phaser.Scene {
       { label: 'Claw', value: 'ClawScene' },
       { label: 'Bingo Ball', value: 'BingoScene' },
       { label: 'Horse Dash', value: 'HorseRaceScene' },
+      { label: 'Survival', value: 'SurvivalScene' },
       { label: 'Maze Race', value: 'MazeRaceScene' }
     ];
     let gameIndex = gameOptions.findIndex(opt => opt.value === nextGame);

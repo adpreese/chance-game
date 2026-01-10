@@ -12,6 +12,7 @@ const GAME_BACKGROUNDS = {
   ClawScene: { color: 0x4b1f2a, accent: 0x7a3240 },
   BingoScene: { color: 0x3a3d12, accent: 0x6f7422 },
   HorseRaceScene: { color: 0x3d2d18, accent: 0x6d4b25 },
+  SurvivalScene: { color: 0x101827, accent: 0xff8f3d },
   MazeRaceScene: { color: 0x102a35, accent: 0x1f5666 },
 };
 
@@ -135,6 +136,24 @@ const renderBackgroundPattern = (scene, sceneKey, theme) => {
       }
       graphics.lineStyle(3, softAccent, 0.2);
       graphics.strokeRoundedRect(90, 90, width - 180, height - 180, 20);
+      break;
+    }
+    case 'SurvivalScene': {
+      graphics.lineStyle(2, accent, 0.2);
+      const rows = 6;
+      const cols = 8;
+      const cellW = (width - 240) / cols;
+      const cellH = (height - 240) / rows;
+      for (let r = 0; r <= rows; r += 1) {
+        graphics.lineBetween(120, 120 + r * cellH, width - 120, 120 + r * cellH);
+      }
+      for (let c = 0; c <= cols; c += 1) {
+        graphics.lineBetween(120 + c * cellW, 120, 120 + c * cellW, height - 120);
+      }
+      graphics.fillStyle(softAccent, 0.15);
+      graphics.fillCircle(width / 2, height / 2, 40);
+      graphics.lineStyle(3, accent, 0.3);
+      graphics.strokeCircle(width / 2, height / 2, 40);
       break;
     }
     default:
