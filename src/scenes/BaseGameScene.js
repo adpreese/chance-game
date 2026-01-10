@@ -12,6 +12,7 @@ const GAME_BACKGROUNDS = {
   ClawScene: { color: 0x4b1f2a, accent: 0x7a3240 },
   BingoScene: { color: 0x3a3d12, accent: 0x6f7422 },
   HorseRaceScene: { color: 0x3d2d18, accent: 0x6d4b25 },
+  SurvivalScene: { color: 0x101827, accent: 0xff8f3d },
 };
 
 const getBackgroundTheme = (sceneKey) =>

@@ -9,6 +9,7 @@ import FishingScene from './scenes/FishingScene.js';
 import ClawScene from './scenes/ClawScene.js';
 import BingoScene from './scenes/BingoScene.js';
 import HorseRaceScene from './scenes/HorseRaceScene.js';
+import SurvivalScene from './scenes/SurvivalScene.js';
 
 const config = {
   type: Phaser.WEBGL,
@@ -25,7 +26,7 @@ const config = {
       gravity: { y: 1.1 },
     },
   },
-  scene: [BootScene, ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene, HorseRaceScene],
+  scene: [BootScene, ConfigScene, HubScene, PlinkoScene, WheelScene, DiceScene, FishingScene, ClawScene, BingoScene, HorseRaceScene, SurvivalScene],
 };
 
 const game = new Phaser.Game(config);
