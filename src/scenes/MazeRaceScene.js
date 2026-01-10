@@ -90,6 +90,88 @@ const carveMaze = (grid) => {
   }
 };
 
+const getOpenNeighbors = (grid, cell) => {
+  const rows = grid.length;
+  const cols = grid[0].length;
+  const cellData = grid[cell.y][cell.x];
+  const neighbors = [];
+  if (!cellData.walls.top && cell.y > 0) {
+    neighbors.push({ x: cell.x, y: cell.y - 1 });
+  }
+  if (!cellData.walls.right && cell.x < cols - 1) {
+    neighbors.push({ x: cell.x + 1, y: cell.y });
+  }
+  if (!cellData.walls.bottom && cell.y < rows - 1) {
+    neighbors.push({ x: cell.x, y: cell.y + 1 });
+  }
+  if (!cellData.walls.left && cell.x > 0) {
+    neighbors.push({ x: cell.x - 1, y: cell.y });
+  }
+  return neighbors;
+};
+
+const countDistinctPaths = (grid, start, goal, limit = 3) => {
+  let paths = 0;
+  const visited = new Set();
+
+  const walk = (cell) => {
+    if (paths >= limit) {
+      return;
+    }
+    if (cell.x === goal.x && cell.y === goal.y) {
+      paths += 1;
+      return;
+    }
+    const key = `${cell.x},${cell.y}`;
+    visited.add(key);
+    const neighbors = getOpenNeighbors(grid, cell);
+    neighbors.forEach((neighbor) => {
+      const neighborKey = `${neighbor.x},${neighbor.y}`;
+      if (!visited.has(neighborKey)) {
+        walk(neighbor);
+      }
+    });
+    visited.delete(key);
+  };
+
+  walk(start);
+  return paths;
+};
+
+const ensureMultiplePaths = (grid, minPaths = 3) => {
+  const rows = grid.length;
+  const cols = grid[0].length;
+  const start = { x: 0, y: 0 };
+  const goal = { x: cols - 1, y: rows - 1 };
+  const directions = [
+    { dx: 0, dy: -1, wall: 'top', opposite: 'bottom' },
+    { dx: 1, dy: 0, wall: 'right', opposite: 'left' },
+    { dx: 0, dy: 1, wall: 'bottom', opposite: 'top' },
+    { dx: -1, dy: 0, wall: 'left', opposite: 'right' },
+  ];
+  const maxAttempts = rows * cols * 8;
+  let attempts = 0;
+
+  while (countDistinctPaths(grid, start, goal, minPaths) < minPaths && attempts < maxAttempts) {
+    attempts += 1;
+    const cell = grid[Phaser.Math.Between(0, rows - 1)][Phaser.Math.Between(0, cols - 1)];
+    const options = directions.filter((dir) => {
+      const nextX = cell.x + dir.dx;
+      const nextY = cell.y + dir.dy;
+      if (nextX < 0 || nextX >= cols || nextY < 0 || nextY >= rows) {
+        return false;
+      }
+      return cell.walls[dir.wall];
+    });
+    if (!options.length) {
+      continue;
+    }
+    const pick = Phaser.Utils.Array.GetRandom(options);
+    cell.walls[pick.wall] = false;
+    grid[cell.y + pick.dy][cell.x + pick.dx].walls[pick.opposite] = false;
+  }
+};
+
 class MazeRaceScene extends BaseGameScene {
   constructor() {
     super('MazeRaceScene');
@@ -128,6 +210,7 @@ class MazeRaceScene extends BaseGameScene {
 
     this.maze = createGrid(cols, rows);
     carveMaze(this.maze);
+    ensureMultiplePaths(this.maze, 3);
     this.goal = { x: cols - 1, y: rows - 1 };
 
     this.drawMaze(totalWidth, totalHeight);
