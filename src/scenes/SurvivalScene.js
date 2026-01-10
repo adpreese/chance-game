@@ -58,6 +58,7 @@ class SurvivalScene extends BaseGameScene {
     this.createArena();
     this.createCreatures();
     this.createHud();
+    this.createLegend();
     this.startCountdown();
   }
 
@@ -126,6 +127,66 @@ class SurvivalScene extends BaseGameScene {
       })
       .setOrigin(1, 0.5);
     this.updateRemainingText();
+  }
+
+  createLegend() {
+    const entries = this.creatures.map((creature, index) => ({
+      name: creature.name,
+      color: creaturePalette[index % creaturePalette.length],
+      styleIndex: index,
+    }));
+    if (!entries.length) {
+      return;
+    }
+
+    const padding = 10;
+    const headerHeight = 18;
+    const lineHeight = 18;
+    const maxRows = 10;
+    const rows = Math.min(maxRows, entries.length);
+    const columns = Math.ceil(entries.length / maxRows);
+    const columnWidth = 150;
+    const width = columns * columnWidth + padding * 2;
+    const height = rows * lineHeight + padding * 2 + headerHeight;
+    const offsetX = 24;
+    const offsetY = this.scale.height - height - 80;
+
+    const container = this.add.container(offsetX, offsetY).setDepth(6);
+    const background = this.add.rectangle(0, 0, width, height, 0x0b1020, 0.7).setOrigin(0, 0);
+    background.setStrokeStyle(2, 0xffb454, 0.35);
+    container.add(background);
+
+    const header = this.add.text(padding, padding, 'Legend', {
+      fontFamily: '"Bangers", "Impact", sans-serif',
+      fontSize: '14px',
+      color: '#fef3c7',
+      stroke: '#0f172a',
+      strokeThickness: 3,
+    });
+    header.setOrigin(0, 0);
+    container.add(header);
+
+    entries.forEach((entry, index) => {
+      const column = Math.floor(index / maxRows);
+      const row = index % maxRows;
+      const entryX = padding + column * columnWidth;
+      const entryY = padding + headerHeight + row * lineHeight + 8;
+
+      const icon = buildCreature(this, entry.color, entry.styleIndex);
+      icon.setPosition(entryX + 10, entryY);
+      icon.setScale(0.45);
+      container.add(icon);
+
+      const label = this.add.text(entryX + 24, entryY - 7, entry.name, {
+        fontFamily: '"Rubik", "Inter", system-ui, sans-serif',
+        fontSize: '12px',
+        color: '#f8fafc',
+        stroke: '#0f172a',
+        strokeThickness: 3,
+      });
+      label.setOrigin(0, 0);
+      container.add(label);
+    });
   }
 
   startCountdown() {
