@@ -146,17 +146,19 @@ class SurvivalScene extends BaseGameScene {
 
     this.time.addEvent({
       delay: COUNTDOWN_STEP,
-      repeat: messages.length - 1,
+      repeat: messages.length - 2,
       callback: () => {
         step += 1;
-        this.countdownText.setText(messages[step]);
-        this.countdownText.setScale(step === messages.length - 1 ? 1.1 : 1);
-        this.countdownText.setColor(step === messages.length - 1 ? '#86efac' : '#fef08a');
-        if (step === messages.length - 1) {
-          this.time.delayedCall(300, () => {
-            this.countdownText.destroy();
-            this.startGame();
-          });
+        if (step < messages.length) {
+          this.countdownText.setText(messages[step]);
+          this.countdownText.setScale(step === messages.length - 1 ? 1.1 : 1);
+          this.countdownText.setColor(step === messages.length - 1 ? '#86efac' : '#fef08a');
+          if (step === messages.length - 1) {
+            this.time.delayedCall(300, () => {
+              this.countdownText.destroy();
+              this.startGame();
+            });
+          }
         }
       },
     });
@@ -253,12 +255,25 @@ class SurvivalScene extends BaseGameScene {
 
     playSfx(this, 'hover', { volume: 0.2, rate: 1 + (1 - this.getAliveCount() / this.creatures.length) * 0.4 });
 
-    creature.hopTween = this.tweens.timeline({
+    creature.hopTween = this.tweens.add({
       targets: creature,
-      tweens: [
-        { x: targetX, y: targetY - 8, scaleX: 1.1, scaleY: 1.1, duration: 180, ease: 'Quad.easeOut' },
-        { x: targetX, y: targetY, scaleX: 1, scaleY: 1, duration: 120, ease: 'Quad.easeIn' },
-      ],
+      x: targetX,
+      y: targetY - 8,
+      scaleX: 1.1,
+      scaleY: 1.1,
+      duration: 180,
+      ease: 'Quad.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: creature,
+          x: targetX,
+          y: targetY,
+          scaleX: 1,
+          scaleY: 1,
+          duration: 120,
+          ease: 'Quad.easeIn',
+        });
+      },
     });
   }
 
