@@ -153,7 +153,7 @@ class HubScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5);
     });
 
-    createTextButton(this, leftButtonX, this.scale.height - 30, 'Play Random Game', () => {
+    createTextButton(this, leftButtonX, 80, 'Random', () => {
       const target = Phaser.Utils.Array.GetRandom(gameCards).key;
       playSfx(this, 'uiNavigate');
       this.scene.start(target);
