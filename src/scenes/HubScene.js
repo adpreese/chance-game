@@ -12,6 +12,7 @@ const gameCards = [
   { key: 'ClawScene', label: 'Claw Game' },
   { key: 'BingoScene', label: 'Bingo Ball' },
   { key: 'HorseRaceScene', label: 'Horse Dash' },
+  { key: 'MazeRaceScene', label: 'Maze Race' },
 ];
 
 const drawPreview = (scene, graphics, key, x, y, width, height) => {
@@ -66,6 +67,15 @@ const drawPreview = (scene, graphics, key, x, y, width, height) => {
       graphics.fillStyle(0x38bdf8, 0.9).fillRoundedRect(centerX - 10, centerY + 5, 36, 14, 6);
       graphics.fillStyle(0x38bdf8, 0.9).fillCircle(centerX + 28, centerY + 2, 6);
       graphics.lineStyle(2, 0xffffff, 0.4).lineBetween(centerX + 45, centerY - 30, centerX + 45, centerY + 30);
+      break;
+    case 'MazeRaceScene':
+      graphics.lineStyle(2, 0x22d3ee, 0.7);
+      graphics.strokeRect(centerX - 55, centerY - 40, 110, 80);
+      graphics.lineStyle(2, 0xfacc15, 0.9);
+      graphics.lineBetween(centerX - 55, centerY - 20, centerX + 10, centerY - 20);
+      graphics.lineBetween(centerX - 10, centerY + 10, centerX + 55, centerY + 10);
+      graphics.fillStyle(0xf97316, 0.9).fillCircle(centerX - 30, centerY + 20, 6);
+      graphics.fillStyle(0x38bdf8, 0.9).fillCircle(centerX + 20, centerY - 5, 6);
       break;
     default:
       break;
