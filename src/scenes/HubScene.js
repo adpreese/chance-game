@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { getState } from '../utils/store.js';
 import { createTextButton } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
 import { playSfx, registerSfx } from '../utils/audio.js';
@@ -13,6 +12,7 @@ const gameCards = [
   { key: 'BingoScene', label: 'Bingo Ball' },
   { key: 'HorseRaceScene', label: 'Horse Dash' },
   { key: 'SurvivalScene', label: 'Survival' },
+  { key: 'MazeRaceScene', label: 'Maze Race' },
 ];
 
 const drawPreview = (scene, graphics, key, x, y, width, height) => {
@@ -76,6 +76,15 @@ const drawPreview = (scene, graphics, key, x, y, width, height) => {
       graphics.fillStyle(0x0f172a, 1).fillCircle(centerX - 22, centerY - 8, 2);
       graphics.fillCircle(centerX - 14, centerY - 8, 2);
       break;
+    case 'MazeRaceScene':
+      graphics.lineStyle(2, 0x22d3ee, 0.7);
+      graphics.strokeRect(centerX - 55, centerY - 40, 110, 80);
+      graphics.lineStyle(2, 0xfacc15, 0.9);
+      graphics.lineBetween(centerX - 55, centerY - 20, centerX + 10, centerY - 20);
+      graphics.lineBetween(centerX - 10, centerY + 10, centerX + 55, centerY + 10);
+      graphics.fillStyle(0xf97316, 0.9).fillCircle(centerX - 30, centerY + 20, 6);
+      graphics.fillStyle(0x38bdf8, 0.9).fillCircle(centerX + 20, centerY - 5, 6);
+      break;
     default:
       break;
   }
@@ -107,7 +116,9 @@ class HubScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0.5);
 
-    createTextButton(this, this.scale.width - 100, 40, 'Configure', () => {
+    const leftButtonX = 120;
+
+    createTextButton(this, leftButtonX, 40, 'Configure', () => {
       playSfx(this, 'uiNavigate');
       this.scene.start('ConfigScene');
     });
@@ -142,15 +153,7 @@ class HubScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5);
     });
 
-    const { nextGame } = getState();
-
-    createTextButton(this, this.scale.width / 2, this.scale.height - 60, 'Play Configured Game', () => {
-      const target = nextGame === 'random' ? Phaser.Utils.Array.GetRandom(gameCards).key : nextGame;
-      playSfx(this, 'uiNavigate');
-      this.scene.start(target);
-    });
-
-    createTextButton(this, this.scale.width / 2, this.scale.height - 25, 'Play Random Game', () => {
+    createTextButton(this, leftButtonX, this.scale.height - 30, 'Play Random Game', () => {
       const target = Phaser.Utils.Array.GetRandom(gameCards).key;
       playSfx(this, 'uiNavigate');
       this.scene.start(target);
