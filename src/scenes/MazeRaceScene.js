@@ -199,7 +199,7 @@ class MazeRaceScene extends BaseGameScene {
   }
 
   scheduleMove(creature) {
-    const delay = Phaser.Math.Between(800, 1200);
+    const delay = Phaser.Math.Between(100, 200);
     const event = this.time.delayedCall(delay, () => {
       if (this.raceOver) {
         return;
