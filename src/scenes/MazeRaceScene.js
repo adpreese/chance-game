@@ -284,12 +284,16 @@ class MazeRaceScene extends BaseGameScene {
       creature.lastDirection = { dx: 0, dy: 0 };
       creature.memory = [];
       creature.visited = new Set([`${startPos.x},${startPos.y}`]);
-      this.createItemLabel(baseX - 30, baseY - 30 - index * 14, name, {
-        fontSize: '11px',
+      this.createItemLabel(baseX - 36, baseY - 34 - index * 18, name, {
+        fontSize: '12px',
         color: '#f8fafc',
         stroke: '#0f172a',
-        strokeThickness: 3,
-      }).setOrigin(1, 0.5);
+        strokeThickness: 4,
+        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+        padding: { left: 6, right: 6, top: 3, bottom: 3 },
+      })
+        .setOrigin(1, 0.5)
+        .setDepth(5);
       return creature;
     });
 
