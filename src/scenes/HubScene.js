@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { getState } from '../utils/store.js';
 import { createTextButton } from '../utils/ui.js';
 import { applySelectedShader } from '../utils/shader.js';
 import { playSfx, registerSfx } from '../utils/audio.js';
@@ -108,7 +107,9 @@ class HubScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0.5);
 
-    createTextButton(this, this.scale.width - 100, 40, 'Configure', () => {
+    const leftButtonX = 120;
+
+    createTextButton(this, leftButtonX, 40, 'Configure', () => {
       playSfx(this, 'uiNavigate');
       this.scene.start('ConfigScene');
     });
@@ -143,15 +144,7 @@ class HubScene extends Phaser.Scene {
         .setOrigin(0.5, 0.5);
     });
 
-    const { nextGame } = getState();
-
-    createTextButton(this, this.scale.width / 2, this.scale.height - 60, 'Play Configured Game', () => {
-      const target = nextGame === 'random' ? Phaser.Utils.Array.GetRandom(gameCards).key : nextGame;
-      playSfx(this, 'uiNavigate');
-      this.scene.start(target);
-    });
-
-    createTextButton(this, this.scale.width / 2, this.scale.height - 25, 'Play Random Game', () => {
+    createTextButton(this, leftButtonX, this.scale.height - 30, 'Play Random Game', () => {
       const target = Phaser.Utils.Array.GetRandom(gameCards).key;
       playSfx(this, 'uiNavigate');
       this.scene.start(target);
