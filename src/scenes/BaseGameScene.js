@@ -139,6 +139,8 @@ class BaseGameScene extends Phaser.Scene {
   createBaseLayout(title) {
     registerSfx(this);
     applySelectedShader(this);
+    this.hasResult = false;
+    this.selectedItem = null;
     this.matter.world.setBounds(40, 40, this.scale.width - 80, this.scale.height - 80, 64, true, true, false, true);
     const { color, accent } = getBackgroundTheme(this.scene.key);
     this.add.rectangle(this.scale.width / 2, this.scale.height / 2, this.scale.width, this.scale.height, color, 1);

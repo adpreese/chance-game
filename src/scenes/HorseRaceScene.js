@@ -28,6 +28,7 @@ class HorseRaceScene extends BaseGameScene {
 
   create() {
     this.createBaseLayout('Horse Dash Derby!');
+    this.winnerName = '';
     this.resultText.setText('Race in progress...');
     playSfx(this, 'horseRaceStart');
 
