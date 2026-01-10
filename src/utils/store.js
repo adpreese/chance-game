@@ -1,12 +1,13 @@
 const fallbackItems = [
-  'Nova',
-  'Aurora',
-  'Orbit',
-  'Comet',
-  'Zenith',
-  'Pulse',
-  'Echo',
-  'Nimbus',
+  'Australia',
+  'Norway',
+  'Egypt',
+  'Mongolia',
+  'Japan',
+  'Peru',
+  'Jamaica',
+  'Latvia',
+  'Madagascar'
 ];
 
 const STORAGE_KEY = 'chance-game-items';
